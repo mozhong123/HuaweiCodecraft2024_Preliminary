@@ -2,7 +2,6 @@
 #define __REBOT_H__
 #pragma GCC optimize(3)
 #include <iostream>
-#include <iostream>
 #include <vector>
 #include <queue>
 

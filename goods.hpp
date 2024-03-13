@@ -6,14 +6,15 @@ private:
     /* data */
 public:
     Goods(){}
-    Goods(double,double,int,double);
+    Goods(int,int,int,int);
     ~Goods();
-    double x,y;
+    int x,y;
     int value;
-    double time;//生命剩余
+    int time;//生命剩余
+    int chosed;//0表示被选择，1表示未被选择。
 };
 
-Goods::Goods(double xx,double yy,int _value,double _time):
+Goods::Goods(int xx,int yy,int _value,int _time):
 x(xx),y(yy),value(_value),time(_time){}
 Goods::~Goods()
 {
