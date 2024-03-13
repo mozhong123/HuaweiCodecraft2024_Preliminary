@@ -3,18 +3,20 @@
 #include"config.hpp"
 class Robot
 {
-    public:
-    Robot(){}
-    Robot(int _x,int _y):x(_x),y(_y){}
-    int x,y;
-    int goods;//0 : 未携带物品  1 ：携带物品
-    int status;//0：恢复状态 1 ： 正常运行状态
-    int target_get;//目标货物
-    int target_pull;//目标港口
+public:
+    Robot() {}
+    Robot(double _x, double _y) : x(_x), y(_y) {}
+    double x, y;
+    int status;      // 0 : 找货物  1 ：找泊位
+    int normal;      // 0/1 正常运行(恢复状态)
+    int target_get;  // 目标货物
+    int target_pull; // 目标港口
+    int carry;  // 0/1 是否携带货物
     void action(int);
     void check();
     void find_path();
 };
+
 
 
 Robot robot[robot_num+10];
