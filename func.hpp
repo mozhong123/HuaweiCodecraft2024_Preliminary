@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-char mp[2 - 1][201];
+char mp[201][201];
 
 void goodsbfs(int rest)
 {
