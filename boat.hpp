@@ -11,6 +11,6 @@ class Boat
     void Chose_Berth();
 };
 
-Boat boats[boat_num+1];
+Boat boat[boat_num+5];
 Boat::Boat(double _cap):capacity(_cap){}
 #endif

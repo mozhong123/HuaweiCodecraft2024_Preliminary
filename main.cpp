@@ -1,12 +1,9 @@
-<<<<<<< HEAD
-#include<bits/stdc++.h>
-using namespace std;
-int main()
-{
-    return 0;
-}
-=======
 #include <bits/stdc++.h>
+#include"robot.hpp"
+#include"berth.hpp"
+#include"config.hpp"
+#include"goods.hpp"
+#include"boat.hpp"
 using namespace std;
 
 const int n = 200;
@@ -14,57 +11,10 @@ const int robot_num = 10;
 const int berth_num = 10;
 const int N = 210;
 
-struct Robot  // 10个机器人
-{
-    int x, y, goods;
-    int status;
-    int mbx, mby;
-    Robot() {}
-    Robot(int startX, int startY) {
-        x = startX;
-        y = startY;
-    }
-}robot[robot_num + 10];
-
-struct Berth  // 10个泊位
-{
-    int x;
-    int y;
-    int transport_time;
-    int loading_speed;
-    Berth(){}
-    Berth(int x, int y, int transport_time, int loading_speed) {
-        this -> x = x;
-        this -> y = y;
-        this -> transport_time = transport_time;
-        this -> loading_speed = loading_speed;
-    }
-}berth[berth_num + 10];
-
-struct Boat // 5艘船
-{
-    int num, pos, status;
-}boat[10];
-
-struct Good  // 物品
-{
-    int x;
-    int y;
-    int val;
-    int zhen;  // 帧数
-    Good(){}
-    Good(int x, int y, int val, int zhen) {
-        this -> x = x;
-        this -> y = y;
-        this -> val = val;
-        this -> zhen= zhen;
-    }
-};
-
 int money, boat_capacity, id;
 char ch[N][N];  // 地图
 int gds[N][N];  // 官方给的，但似乎没用
-vector <Good> good;  // 货物
+vector <Goods> goods;  // 货物
 void Init()  // 初始化地图与泊位
 {
     for(int i = 1; i <= n; i ++)
@@ -91,7 +41,7 @@ int Input(int zhen)  // 每帧交互
     {
         int x, y, val;
         scanf("%d%d%d", &x, &y, &val);
-        good.push_back(Good(x, y, val, zhen));
+        goods.push_back(Goods(x, y, val, zhen));
     }
     for(int i = 0; i < robot_num; i ++)
     {
@@ -119,4 +69,3 @@ int main()
 
     return 0;
 }
->>>>>>> 92e079aba301733c0d84859859b1eb49a7be1cad

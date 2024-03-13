@@ -4,12 +4,17 @@
 class Berth
 {
     public:
-        Berth(double _x,double _y):x(_x),y(_y){}
+        Berth(){}
+        Berth(double _x,double _y,int transport_time,int loading_speed):x(_x),y(_y)
+        {
+            this->transport_time = transport_time;
+            this->loading_speed = loading_speed;
+        }
         double x,y;
         int status;//有没有船/有没有货
         int transport_time;
         int loading_speed;
 };
 
-Berth berth[berth_num+1];
+Berth berth[berth_num+10];
 #endif

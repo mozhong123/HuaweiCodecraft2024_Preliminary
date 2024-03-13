@@ -5,7 +5,7 @@ class Robot
 {
     public:
     Robot(){}
-    Robot(double,double);
+    Robot(double _x,double _y):x(_x),y(_y){}
     double x,y;
     int status;//0 : 找货物  1 ：找泊位
     int normal;//0/1正常运行
@@ -16,10 +16,6 @@ class Robot
     void find_path();
 };
 
-Robot::Robot(double xx,double yy)
-{
-    x = xx,y = yy;
-}
 
-Robot robots[robot_num+1];
+Robot robot[robot_num+10];
 #endif
