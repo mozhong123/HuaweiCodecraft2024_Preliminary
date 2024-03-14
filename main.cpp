@@ -6,14 +6,13 @@
 #include"goods.hpp"
 #include"boat.hpp"
 // #include"func.hpp"
-#include"Astar.h"
+// #include"Astar.h"
 using namespace std;
 
 
 int money, boat_capacity, id;
 //int gds[map_size][map_size];  // 官方给的，但似乎没用
 vector <Goods> goods;  // 货物
-int collect_time[5];  // 存储五艘船装完完当前码头货物的时间
 Control control; //检查
 
 void Init()  // 初始化地图与泊位
@@ -84,8 +83,7 @@ int main()
         }
         for(int i = 0; i < boat_num; i ++)
         {
-            //boat[i].judge_full(); 输出船的指令
-            
+            boat[i].action(zhen);
         }
         puts("OK");
         fflush(stdout);
