@@ -146,14 +146,14 @@ Berth *berth_find(int x, int y)
 //     return 1;
 // }
 
-bool check_get(Robot& robot,vector <Goods>& goods){
-    if(robot.target_get.x == robot.x && robot.target_get.y == robot.y){
+bool check_get(Robot& robot,Goods& good){
+    if(good.x == robot.x && good.y == robot.y){
         printf("get %d %d\n", rand() % 4); // 修改
     }
 }
 
-bool check_pull(Robot& robot,vector<Berth>& berth){
-    if(robot.target_pull.x == robot.x && robot.target_pull.y == robot.y){
+bool check_pull(Robot& robot,Berth& berth){
+    if(berth.x == robot.x && berth.y == robot.y){
         printf("pull %d %d\n", rand() % 4); // 修改
     }
 }

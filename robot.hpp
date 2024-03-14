@@ -1,8 +1,6 @@
 #ifndef __ROBOT_H__
 #define __ROBOT_H__
 #include "config.hpp"
-#include "goods.hpp"
-#include "berth.hpp"
 class Robot
 {
 public:
@@ -11,8 +9,8 @@ public:
     int x, y,robot_id;
     int goods;          // 0 : 未携带物品  1 ：携带物品
     int status;         // 0：恢复状态 1 ： 正常运行状态
-    Goods *target_get;  // 目标货物
-    Berth *target_pull; // 目标港口
+    int target_get;  // 目标货物 vector中的下标
+    int target_pull; // 目标港口
     bool chosed;
     queue<int> op; // 指令队列
     void action();

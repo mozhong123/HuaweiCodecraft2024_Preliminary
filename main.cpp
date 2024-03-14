@@ -46,7 +46,7 @@ int Input(int zhen)  // 每帧交互
     }
     for(int i = 0; i < robot_num; i ++)
     {
-        scanf("%d%d%d%d", &robot[i].status, &robot[i].x, &robot[i].y, &robot[i].normal);
+        scanf("%d%d%d%d", &robot[i].status, &robot[i].x, &robot[i].y, &robot[i].status);
     }
     for(int i = 0; i < 5; i ++)
     {
@@ -57,6 +57,8 @@ int Input(int zhen)  // 每帧交互
     scanf("%s", okk);
     return id;
 }
+
+int dx[] = {0,0,-1,1} , dy[] = {1,-1,0,0};
 
 int main()
 {
@@ -71,10 +73,12 @@ int main()
         control.ismove.clear();
         for(int i = 0; i < robot_num; i ++){// 遍历机器人
             // 根据路径 输出一次
-            if(control.check_move(robot[i].target_move))
+            int tempx = robot[i].x + dx[robot[i].op.front()];
+            int tempy = robot[i].y + dy[robot[i].op.front()];
+            if(control.check_move(tempx,tempy))
                 printf("move %d %d\n", i, rand() % 4); //  0 表示右移一格  1 表示左移一格  2 表示上移一格  3 表示下移一格
-                check_get(robot[i],goods);
-                check_pull(robot[i],berth);
+                check_get(robot[i],goods[robot[i].target_get]); //输出get
+                check_pull(robot[i],berth[robot[i].target_pull]); //输出pull
         }
         for(int i = 0; i < boat_num; i ++)
         {
