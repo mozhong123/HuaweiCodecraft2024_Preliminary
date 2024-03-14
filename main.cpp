@@ -2,25 +2,24 @@
 #include"robot.hpp"
 #include"berth.hpp"
 #include"config.hpp"
+#include"control.hpp"
 #include"goods.hpp"
 #include"boat.hpp"
 #include"func.hpp"
+#include"Astar.h"
 using namespace std;
 
-const int n = 200;
-const int robot_num = 10;
-const int berth_num = 10;
-const int N = 210;
 
 int money, boat_capacity, id;
-char ch[N][N];  // 地图
-int gds[N][N];  // 官方给的，但似乎没用
+//int gds[map_size][map_size];  // 官方给的，但似乎没用
 vector <Goods> goods;  // 货物
 int collect_time[5];  // 存储五艘船装完完当前码头货物的时间
+Control control; //检查
+
 void Init()  // 初始化地图与泊位
 {
-    for(int i = 1; i <= n; i ++)
-        scanf("%s", ch[i] + 1);
+    for(int i = 1; i <= map_size; i ++)
+        scanf("%s", mp[i] + 1);
     for(int i = 0; i < berth_num; i ++)
     {
         int id;
@@ -47,7 +46,7 @@ int Input(int zhen)  // 每帧交互
     }
     for(int i = 0; i < robot_num; i ++)
     {
-        scanf("%d%d%d%d", &robot[i].goods, &robot[i].x, &robot[i].y, &robot[i].status);
+        scanf("%d%d%d%d", &robot[i].status, &robot[i].x, &robot[i].y, &robot[i].normal);
     }
     for(int i = 0; i < 5; i ++)
     {
@@ -65,8 +64,22 @@ int main()
     for(int zhen = 1; zhen <= 15000; zhen ++)
     {
         int id = Input(zhen);
-        for(int i = 0; i < robot_num; i ++)
-            printf("move %d %d\n", i, rand() % 4);
+        for(auto good : goods){ //遍历货物
+            // find path 存储好
+        }
+        // control 检查
+        control.ismove.clear();
+        for(int i = 0; i < robot_num; i ++){// 遍历机器人
+            // 根据路径 输出一次
+            if(control.check_move(robot[i].target_move))
+                printf("move %d %d\n", i, rand() % 4); //  0 表示右移一格  1 表示左移一格  2 表示上移一格  3 表示下移一格
+                check_get(robot[i],goods);
+                check_pull(robot[i],berth);
+        }
+        for(int i = 0; i < boat_num; i ++)
+        {
+            //boat[i].judge_full(); 输出船的指令
+        }
         puts("OK");
         fflush(stdout);
     }

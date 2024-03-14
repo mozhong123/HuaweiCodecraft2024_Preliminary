@@ -3,6 +3,7 @@
 #pragma GCC optimize(3)
 #include <iostream>
 #include <vector>
+#include"config.hpp"
 #include <queue>
 
 
@@ -28,8 +29,6 @@ struct OpenPoint : public Point {
     }
 };
 
-const int width = 200;
-const int height = 200;
 
 //比较器，用以优先队列的指针类型比较
 struct OpenPointPtrCompare {
@@ -40,17 +39,17 @@ struct OpenPointPtrCompare {
 //使用最大优先队列
 std::priority_queue<OpenPoint*, std::vector<OpenPoint*>, OpenPointPtrCompare> openlist;
 //存储OpenPoint的内存空间
-std::vector<OpenPoint> pointList = std::vector<OpenPoint>(width*height);
+std::vector<OpenPoint> pointList = std::vector<OpenPoint>(map_size*map_size);
 //地图数据
-char mapBuffer[width][height];
+char mapBuffer[map_size][map_size];
 //是否可以经过
-bool closeAndBarrierList[width][height];
+bool closeAndBarrierList[map_size][map_size];
 //深度
 int deepth;
 
 //检查函数 返还成功与否值
 inline bool inBarrierAndCloseList(const Point & pos) {
-    if (pos.x < 0 || pos.y < 0 || pos.x >= width || pos.y >= height)
+    if (pos.x < 0 || pos.y < 0 || pos.x >= map_size || pos.y >= map_size)
         return true;
     return closeAndBarrierList[pos.x][pos.y];
 }
