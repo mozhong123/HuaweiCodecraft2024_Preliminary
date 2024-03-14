@@ -16,7 +16,7 @@ public:
     int loading_speed;
 };
 
-Berth berth[berth_num + 10];
+vector<Berth> berth(berth_num + 10);
 
 
 #endif

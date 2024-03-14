@@ -2,8 +2,8 @@
 
 //创建地图
 void createMap() {
-    for (int i = 0; i < width; ++i)
-        for (int j = 0; j < height; ++j){
+    for (int i = 0; i < map_size; ++i)
+        for (int j = 0; j < map_size; ++j){
             //五分之一概率生成障碍物，不可走
             if (rand() % 5 == 0) {
                 mapBuffer[i][j] = '*';
@@ -19,8 +19,8 @@ void createMap() {
 //打印地图
 void printMap() {
     std::cout<<"打印地图"<<std::endl;
-    for (int i = 0; i < width; ++i) {
-        for (int j = 0; j < height; ++j)
+    for (int i = 0; i < map_size; ++i) {
+        for (int j = 0; j < map_size; ++j)
             std::cout << mapBuffer[i][j];
         std::cout << std::endl;
     }

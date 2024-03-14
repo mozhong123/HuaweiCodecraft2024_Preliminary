@@ -3,7 +3,7 @@
 #include <bits/stdc++.h>
 #include "robot.hpp"
 #include "berth.hpp"
-// #include "goods.hpp"
+#include "goods.hpp"
 #include "config.hpp"
 using namespace std;
 
@@ -147,5 +147,17 @@ Berth *berth_find(int x, int y)
 //     // 找到返回0
 //     return 1;
 // }
+
+bool check_get(Robot& robot,Goods& good){
+    if(good.x == robot.x && good.y == robot.y){
+        printf("get %d %d\n", rand() % 4); // 修改
+    }
+}
+
+bool check_pull(Robot& robot,Berth& berth){
+    if(berth.x == robot.x && berth.y == robot.y){
+        printf("pull %d %d\n", rand() % 4); // 修改
+    }
+}
 
 #endif
