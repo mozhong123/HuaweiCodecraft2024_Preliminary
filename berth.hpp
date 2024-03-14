@@ -1,6 +1,7 @@
 #ifndef __BERTH_H__
 #define __BERTH_H__
 #include "config.hpp"
+#include<vector>
 class Berth
 {
 public:
@@ -16,7 +17,7 @@ public:
     int loading_speed;
 };
 
-vector<Berth> berth(berth_num + 10);
+std::vector<Berth> berth(berth_num + 10);
 
 
 #endif
