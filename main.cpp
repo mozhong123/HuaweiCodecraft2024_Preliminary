@@ -4,6 +4,7 @@
 #include"config.hpp"
 #include"goods.hpp"
 #include"boat.hpp"
+#include"func.hpp"
 using namespace std;
 
 const int n = 200;
@@ -15,6 +16,7 @@ int money, boat_capacity, id;
 char ch[N][N];  // 地图
 int gds[N][N];  // 官方给的，但似乎没用
 vector <Goods> goods;  // 货物
+int collect_time[5];  // 存储五艘船装完完当前码头货物的时间
 void Init()  // 初始化地图与泊位
 {
     for(int i = 1; i <= n; i ++)
@@ -45,11 +47,17 @@ int Input(int zhen)  // 每帧交互
     }
     for(int i = 0; i < robot_num; i ++)
     {
-        int sts;
-        scanf("%d%d%d%d", &robot[i].goods, &robot[i].x, &robot[i].y, &sts);
+        scanf("%d%d%d%d", &robot[i].carry, &robot[i].x, &robot[i].y, &robot[i].normal);
     }
     for(int i = 0; i < 5; i ++)
+<<<<<<< HEAD
         scanf("%d%d\n", &boat[i].status, &boat[i].target);
+=======
+    {
+        boat[i].id = i;
+        scanf("%d%d\n", &boat[i].status, &boat[i].target);
+    }
+>>>>>>> d660657df494b8b3c69923159cad33013fef2a5d
     char okk[100];
     scanf("%s", okk);
     return id;
