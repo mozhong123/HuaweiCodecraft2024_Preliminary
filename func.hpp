@@ -14,6 +14,7 @@ Robot *robot_find(int x, int y)
         if (robot[i].x == x && robot[i].y == y)
             return &robot[i];
     }
+    return nullptr;
 }
 
 Berth *berth_find(int x, int y)
@@ -21,6 +22,7 @@ Berth *berth_find(int x, int y)
     for (int i = 0; i < berth_num; i++)
         if (berth[i].x == x && berth[i].y == y)
             return &berth[i];
+    return nullptr;
 }
 
 // int goodsbfs(int rest,  Goods *good)

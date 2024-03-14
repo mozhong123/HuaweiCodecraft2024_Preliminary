@@ -1,5 +1,5 @@
-#ifndef __GoodsS_H__
-#define __GoodsS_H__
+#ifndef __GOODS_H__
+#define __GOODS_H__
 #include "robot.hpp"
 #include "func.hpp"
 class Goods
@@ -56,7 +56,6 @@ int Goods::goodbfs()
                         {
                             r = 1;
                             // 此处id应该为物品的索引？或者物品指针
-                            tmp->target_get = this;
                             tmp->chosed = 1;
                             start = make_pair(xx, yy); // 记录机器人在数组中的位置
                             // 确定之后该位置就可以视为非障碍物
@@ -88,7 +87,6 @@ int Goods::goodbfs()
                 if (p && r)
                 {
                     // 此处id应为berth的指针
-                    tmp->target_pull = tmpb;
                     //物品被选择
                     this->chosed = 1;
                     // 都找到则停止

@@ -4,6 +4,7 @@
 class Boat
 {
 public:
+    Boat(){}
     Boat(int, int);
     int id;  // 船的id
     int capacity; // 船的容量

@@ -1,7 +1,9 @@
 {
     "files.associations": {
         "chrono": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "tuple": "cpp",
+        "map": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabledIfIncludesResolve"
 }
