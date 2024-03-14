@@ -47,17 +47,13 @@ int Input(int zhen)  // 每帧交互
     }
     for(int i = 0; i < robot_num; i ++)
     {
-        scanf("%d%d%d%d", &robot[i].carry, &robot[i].x, &robot[i].y, &robot[i].normal);
+        scanf("%d%d%d%d", &robot[i].goods, &robot[i].x, &robot[i].y, &robot[i].status);
     }
     for(int i = 0; i < 5; i ++)
-<<<<<<< HEAD
-        scanf("%d%d\n", &boat[i].status, &boat[i].target);
-=======
     {
         boat[i].id = i;
         scanf("%d%d\n", &boat[i].status, &boat[i].target);
     }
->>>>>>> d660657df494b8b3c69923159cad33013fef2a5d
     char okk[100];
     scanf("%s", okk);
     return id;
