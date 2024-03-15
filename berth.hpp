@@ -20,5 +20,4 @@ public:
 
 std::vector<Berth> berth(berth_num + 10);
 
-
 #endif

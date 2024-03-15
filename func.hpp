@@ -142,4 +142,7 @@ void check_pull(Robot& robot,Berth& berth){
     }
 }
 
+bool berth_compare(pair<int, int>& p1, pair<int, int>& p2) {
+    return p1.second < p2.second;
+}
 #endif

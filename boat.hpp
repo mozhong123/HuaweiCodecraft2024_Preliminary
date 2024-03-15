@@ -2,7 +2,10 @@
 #define __BOAT_H__
 #include "config.hpp"
 #include "berth.hpp"
+#include "func.hpp"
 int collect_time[5] = {0}; // 存储五艘船装完完当前码头货物的时间
+vector<pair<int, int>> berth_list;  // 存储可去码头
+
 class Boat
 {
 public:
@@ -27,6 +30,7 @@ Boat::Boat(int _cap, int _pos) : capacity(_cap), target(_pos) {}
 void Boat::to_berth(int _target, int zhen)
 {
     zhen_id = zhen + berth[_target].transport_time;
+    berth[_target].status = 1;
     printf("ship %d %d\n", this->id, _target);
 }
 
@@ -35,6 +39,7 @@ void Boat::sold()
     this->exist_goods_num = 0;
     this->leave_time = -1;
     this->zhen_id = -1;
+    berth[this->target].status = 0;
     printf("go %d\n", this->id);
 }
 
@@ -63,7 +68,27 @@ void Boat::action(int zhen)
     {
         if (this->target == -1) // 在虚拟点
         {
-            this->to_berth(1, zhen); // 送去泊点
+            for(int i = 0; i < berth_num; i++)  // 遍历所有泊位
+            {
+                if(berth[i].status == 0)  // 泊位上没船
+                {
+                    if(berth[i].goods_num != 0)  // 泊位上有货
+                    {
+                        berth_list.push_back({i, berth[i].transport_time});
+                    }      
+                    // 泊位的权重，目前根据已有货物数量和泊位与虚拟点的距离来判断(待改进：货物总价值，待送货物总价值，泊位装载速度)
+                }
+                if(berth_list.size() != 0)
+                {
+                    sort(berth_list.begin(), berth_list.end(), berth_compare);
+                    int berth_target = berth_list[0].first;
+                    this->to_berth(berth_target, zhen); // 送去泊点
+                }
+                else
+                {
+                    continue; // 待优化，无货不动
+                }
+            }
         }
         else // 在泊位，要判断是否装满
         {
@@ -71,6 +96,7 @@ void Boat::action(int zhen)
             {
                 if (this->zhen_id == zhen) // 船刚到泊位
                 {
+                    berth[this->target].status = 1;
                     int lodging_time = this->judge_full(zhen); // 判断港口货物能否装满
                     if (lodging_time != 0)
                     {
