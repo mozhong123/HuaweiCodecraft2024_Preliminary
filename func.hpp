@@ -5,6 +5,7 @@
 #include "berth.hpp"
 #include "goods.hpp"
 #include "config.hpp"
+#include "Astar.h"
 using namespace std;
 
 // int goodsbfs(int rest,  Goods *good)
@@ -129,20 +130,51 @@ using namespace std;
 //     // 找到返回0
 //     return 1;
 // }
+// void check_get(Robot& robot,Goods& good){
+//     if(good.x == robot.x && good.y == robot.y){
+//         printf("get %d %d\n", rand() % 4); // 修改
+//     }
+// }
 
-void check_get(Robot& robot,Goods& good){
-    if(good.x == robot.x && good.y == robot.y){
-        printf("get %d %d\n", rand() % 4); // 修改
+// void check_pull(Robot& robot,Berth& berth){
+//     if(berth.x == robot.x && berth.y == robot.y){
+//         printf("pull %d %d\n", rand() % 4); // 修改
+//     }
+// }
+
+void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths){
+    int gx,gy,mind = 0x7fffffff,i=-1,j=-1;
+    for(auto good :goods){   //最近的货
+        if(robot.chosed == 1) break; //带货 不找
+        i++;
+        if(good.chosed) continue;
+        int temp = abs(robot.x - good.x) + abs(robot.y - good.y);
+        if(temp < mind){
+            mind = temp;
+            robot.target_get = i;
+            good.chosed = true;
+            robot.chosed  =true;
+        }
+    }
+    mind = 0x7fffffff;
+    for(auto berth :berths){  //最近的口
+        if(i == -1) break;
+        j++;
+        int temp = abs(berth.x - goods[i].x) + abs(berth.y - goods[i].y);
+        if(temp < mind){
+            mind = temp;
+            robot.target_pull = j;
+        }
+    }
+
+    if(robot.chosed == 1){
+        robot.next = greed_next({robot.x,robot.y} , {goods[robot.target_get].x , goods[robot.target_get].y});
+    }
+    else{
+        robot.next = greed_next({robot.x,robot.y} , {berths[robot.target_pull].x , berths[robot.target_pull].y});
     }
 }
 
-void check_pull(Robot& robot,Berth& berth){
-    if(berth.x == robot.x && berth.y == robot.y){
-        printf("pull %d %d\n", rand() % 4); // 修改
-    }
-}
 
-bool berth_compare(pair<int, int>& p1, pair<int, int>& p2) {
-    return p1.second < p2.second;
-}
+
 #endif

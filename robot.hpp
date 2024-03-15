@@ -2,6 +2,7 @@
 #define __ROBOT_H__
 #include "config.hpp"
 #include "berth.hpp"
+#include"Astar.h"
 #include<queue>
 class Robot
 {
@@ -15,6 +16,7 @@ public:
     int target_pull; // 目标港口
     bool chosed;
     std::queue<int> op; // 指令队列
+    int next;
     void action();
     // void check();
     // void find_path();
@@ -24,27 +26,30 @@ public:
 int Robot::robot_rest = 10;
 
 Robot robot[robot_num + 10];
-void Robot::action()
-{
-    if (!op.empty())
-    {
-        int o = op.front();
-        op.pop();
-        printf("move %d %d\n", robot_id, o);
-    }
-    // 是否处于特殊状态
-    if (!op.empty())
-    {
-        if (op.front() == 4)
-        {
-            printf("get %d\n", robot_id);
-            op.pop();
-        }
-        else if (op.front() == 5)
-        {
-            printf("pull %d\n", robot_id);
-            op.pop();
-        }
-    }
-}
+// void Robot::action()
+// {
+//     // if (!op.empty())
+//     // {
+//     //     int o = op.front();
+//     //     op.pop();
+//     //     printf("move %d %d\n", robot_id, o);
+//     // }
+//     // // 是否处于特殊状态
+//     // if (!op.empty())
+//     // {
+//     //     if (op.front() == 4)
+//     //     {
+//     //         printf("get %d\n", robot_id);
+//     //         op.pop();
+//     //     }
+//     //     else if (op.front() == 5)
+//     //     {
+//     //         printf("pull %d\n", robot_id);
+//     //         op.pop();
+//     //     }
+//     // }
+
+//     //choose()
+//     greed()
+// }
 #endif
