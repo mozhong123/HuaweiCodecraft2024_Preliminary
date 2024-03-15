@@ -18,6 +18,6 @@ public:
     int loading_speed;
 };
 
-std::vector<Berth> berth(berth_num + 10);
+std::vector<Berth> berth(berth_num);
 
 #endif

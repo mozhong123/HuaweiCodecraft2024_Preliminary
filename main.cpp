@@ -66,7 +66,6 @@ int main()
     for(int zhen = 1; zhen <= 15000; zhen ++)
     {
         int id = Input(zhen);
-        // TODO ：：：修改地图 
 
         // for(auto good : goods){ //遍历货物// find path 存储好
         //    good.goodbfs();
@@ -75,7 +74,7 @@ int main()
         control.ismove.clear();
         for(int i = 0; i < robot_num; i ++){// 遍历机器人
 
-            distributor(robot[i],goods,berth); 
+            distributor(robot[i],goods,berth,zhen); 
 
             if(robot[i].next == -1) continue; //是否可走
 
@@ -83,16 +82,20 @@ int main()
 
             if(control.check_move(next_x,next_y)){  // 运行阻塞
                 printf("move %d %d\n", i , robot[i].next);
+                mp[robot[i].x][robot[i].y] = '.';
+                mp[next_x][next_y] = 'A';
                 if(next_x == goods[robot[i].target_get].x && next_y == goods[robot[i].target_get].y){
                     printf("get %d\n", i );
+                    mp[next_x][next_y] = '.';
                 }
-                if(next_x == berth[robot[i].target_pull].x && next_y == berth[robot[i].target_pull].y){
+                // TODO 4 * 4判定
+                if(next_x == berth[robot[i].target_pull].x && next_y == berth[robot[i].target_pull].y ){ 
                     printf("pull %d\n", i );
                 }
             }   
         }
 
-        for(int i = 0; i < boat_num; i ++)
+        for(int i = 0; i < boat_num; i++)
         {
             boat[i].action(zhen);
         }

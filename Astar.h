@@ -110,14 +110,17 @@ inline bool inBarrier(std::pair<int,int> pos) {
 }
 int greed_next(std::pair<int,int> start , std::pair<int,int> end){
     //检查p点四方的点
+    int ans = 4000000,next;
     for (int i = 0; i < 4; ++i)
     {
         int tempx = start.first + px[i], tempy = start.second + py[i];
-        if (!inBarrier({tempx,tempy})) {
-            return i;
+        int dis = abs(end.first - tempx) + abs(end.second - tempy);
+        if (!inBarrier({tempx,tempy}) && ans > dis) {
+            ans = dis;
+            next = i;
         }
     }
-    return -1;
+    return (ans != 4000000) ? next : -1;
 }
 
 

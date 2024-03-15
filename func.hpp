@@ -142,32 +142,29 @@ using namespace std;
 //     }
 // }
 
-void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths){
-    int gx,gy,mind = 0x7fffffff,i=-1,j=-1;
-    for(auto good :goods){   //最近的货
-        if(robot.chosed == 1) break; //带货 不找
-        i++;
-        if(good.chosed) continue;
-        int temp = abs(robot.x - good.x) + abs(robot.y - good.y);
+void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int zhen){
+    int gx,gy,mind = 400000,i=-1,j=-1;
+    for( ; i < goods.size() ; i++){
+        if(robot.goods) break; //带货 不找
+        if(goods[i].chosed || goods[i].zhen_id + 1000 < zhen) continue;
+        int temp = abs(robot.x - goods[i].x) + abs(robot.y - goods[i].y);
         if(temp < mind){
             mind = temp;
             robot.target_get = i;
-            good.chosed = true;
-            robot.chosed  =true;
         }
     }
-    mind = 0x7fffffff;
-    for(auto berth :berths){  //最近的口
+    if(i != -1)
+        goods[i].chosed = true;
+    for( ; j < berth_num ; j++){
         if(i == -1) break;
-        j++;
-        int temp = abs(berth.x - goods[i].x) + abs(berth.y - goods[i].y);
+        int temp = abs(berths[i].x - goods[i].x) + abs(berths[i].y - goods[i].y);
         if(temp < mind){
             mind = temp;
             robot.target_pull = j;
         }
     }
 
-    if(robot.chosed == 1){
+    if(!robot.goods){
         robot.next = greed_next({robot.x,robot.y} , {goods[robot.target_get].x , goods[robot.target_get].y});
     }
     else{
@@ -175,6 +172,8 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths){
     }
 }
 
-
+bool berth_compare(pair<int, int>& p1, pair<int, int>& p2) {
+    return p1.second < p2.second;
+}
 
 #endif
