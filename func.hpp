@@ -165,10 +165,10 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
     }
 
     if(!robot.goods){
-        robot.next = greed_next({robot.x,robot.y} , {goods[robot.target_get].x , goods[robot.target_get].y});
+        robot.next = greed_next(robot.vis,{robot.x,robot.y} , {goods[robot.target_get].x , goods[robot.target_get].y});
     }
     else{
-        robot.next = greed_next({robot.x,robot.y} , {berths[robot.target_pull].x , berths[robot.target_pull].y});
+        robot.next = greed_next(robot.vis,{robot.x,robot.y} , {berths[robot.target_pull].x , berths[robot.target_pull].y});
     }
 }
 

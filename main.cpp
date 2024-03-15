@@ -87,10 +87,13 @@ int main()
                 if(next_x == goods[robot[i].target_get].x && next_y == goods[robot[i].target_get].y){
                     printf("get %d\n", i );
                     mp[next_x][next_y] = '.';
+                    robot[i].vis.clear();
                 }
                 // TODO 4 * 4判定
-                if(next_x == berth[robot[i].target_pull].x && next_y == berth[robot[i].target_pull].y ){ 
+                if(next_x - berth[robot[i].target_pull].x >= 0 && next_y - berth[robot[i].target_pull].y >=0 &&
+                   next_x - berth[robot[i].target_pull].x <= 3 && next_y - berth[robot[i].target_pull].y <=3 ){ 
                     printf("pull %d\n", i );
+                    robot[i].vis.clear();
                 }
             }   
         }

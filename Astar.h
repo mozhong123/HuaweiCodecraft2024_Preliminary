@@ -2,9 +2,9 @@
 #define __ASTAR_H__
 #pragma GCC optimize(3)
 #include <iostream>
-#include <vector>
+#include <bits/stdc++.h>
 #include"config.hpp"
-#include <queue>
+
 
 
 struct Point {
@@ -108,16 +108,17 @@ inline bool inBarrier(std::pair<int,int> pos) {
         return true;
     return mp[pos.first][pos.second] != '.' && mp[pos.first][pos.second] != 'B';
 }
-int greed_next(std::pair<int,int> start , std::pair<int,int> end){
+int greed_next(std::map<std::pair<int,int>,bool>& vis ,std::pair<int,int> start , std::pair<int,int> end){
     //检查p点四方的点
     int ans = 4000000,next;
     for (int i = 0; i < 4; ++i)
     {
         int tempx = start.first + px[i], tempy = start.second + py[i];
         int dis = abs(end.first - tempx) + abs(end.second - tempy);
-        if (!inBarrier({tempx,tempy}) && ans > dis) {
+        if (!inBarrier({tempx,tempy}) && ans > dis && !vis[{tempx,tempy}]) {
             ans = dis;
             next = i;
+            vis[{tempx,tempy}] = true;
         }
     }
     return (ans != 4000000) ? next : -1;

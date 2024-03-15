@@ -16,6 +16,7 @@ public:
     int target_pull; // 目标港口
     bool chosed;
     std::queue<int> op; // 指令队列
+    std::map<std::pair<int,int>,bool> vis;
     int next;
     void action();
     // void check();
