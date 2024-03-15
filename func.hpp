@@ -130,13 +130,13 @@ using namespace std;
 //     return 1;
 // }
 
-bool check_get(Robot& robot,Goods& good){
+void check_get(Robot& robot,Goods& good){
     if(good.x == robot.x && good.y == robot.y){
         printf("get %d %d\n", rand() % 4); // 修改
     }
 }
 
-bool check_pull(Robot& robot,Berth& berth){
+void check_pull(Robot& robot,Berth& berth){
     if(berth.x == robot.x && berth.y == robot.y){
         printf("pull %d %d\n", rand() % 4); // 修改
     }

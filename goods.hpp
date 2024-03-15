@@ -62,7 +62,7 @@ int Goods::goodbfs()
         {
             int xx = cur.first + px[i], yy = cur.second + py[i];
             // 不是障碍物
-            if (mp[xx][yy] != '*' && mp[xx][yy] != '#' && !vis[xx][yy]) //(这里应该改为机器人set中的搜索)
+            if (mp[xx][yy] != '*' && mp[xx][yy] != '#' && !vis[xx][yy] && xx >= 0 && yy < 200) //(这里应该改为机器人set中的搜索)
             {
                 if (mp[xx][yy] == 'A')
                 {
