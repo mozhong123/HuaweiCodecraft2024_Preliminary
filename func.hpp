@@ -143,8 +143,8 @@ using namespace std;
 // }
 
 void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int zhen){
-    int gx,gy,mind = 400000,i=-1,j=-1;
-    for( ; i < goods.size() ; i++){
+    int gx,gy,mind = 400000;
+    for(int i = 0 ; i < goods.size() ; i++){
         if(robot.goods) break; //带货 不找
         if(goods[i].chosed || goods[i].zhen_id + 1000 < zhen) continue;
         int temp = abs(robot.x - goods[i].x) + abs(robot.y - goods[i].y);
@@ -153,16 +153,17 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
             robot.target_get = i;
         }
     }
-    if(i != -1)
-        goods[i].chosed = true;
-    for( ; j < berth_num ; j++){
-        if(i == -1) break;
-        int temp = abs(berths[i].x - goods[i].x) + abs(berths[i].y - goods[i].y);
-        if(temp < mind){
-            mind = temp;
-            robot.target_pull = j;
+    if(mind != 400000){
+        mind = 400000;
+        goods[robot.target_get].chosed = true;
+        for(int j = 0 ; j < berth_num ; j++){
+            int temp = abs(berths[j].x - goods[robot.target_get].x) + abs(berths[j].y - goods[robot.target_get].y);
+            if(temp < mind){
+                mind = temp;
+                robot.target_pull = j;
+            }
         }
-    }
+    } 
 
     if(!robot.goods){
         robot.next = greed_next(robot.vis,{robot.x,robot.y} , {goods[robot.target_get].x , goods[robot.target_get].y});
