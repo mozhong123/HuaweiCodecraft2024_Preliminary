@@ -12,12 +12,13 @@ public:
     int x, y, robot_id;
     int goods;       // 0 : 未携带物品  1 ：携带物品
     int status;      // 0：恢复状态 1 ： 正常运行状态
-    int target_get;  // 目标货物
+    int target_get = -1;  // 目标货物
     int target_pull = -1; // 目标港口
-    bool chosed;
-    std::queue<int> op; // 指令队列
+    bool chosed = false;
+    //std::queue<int> op; // 指令队列
     std::map<std::pair<int,int>,bool> vis;
-    int next;
+    std::stack<int> op;
+    //int next;
     void action();
     // void check();
     // void find_path();

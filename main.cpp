@@ -28,6 +28,7 @@ void Init()  // 初始化地图与泊位
     scanf("%d", &boat_capacity);
     char okk[100];
     scanf("%s", okk);
+    recover_map();
     printf("OK\n");
     fflush(stdout);
 }
@@ -73,27 +74,33 @@ int main()
         // control 检查
         control.ismove.clear();
         for(int i = 0; i < robot_num; i ++){// 遍历机器人
+            if(!robot[i].chosed)
+                distributor(robot[i],goods,berth,zhen); //分配
 
-            distributor(robot[i],goods,berth,zhen); 
+            if(robot[i].op.empty()) continue;
 
-            if(robot[i].next == -1) continue; //是否可走
+            int next_x = robot[i].x+px[robot[i].op.top()] , next_y  =robot[i].y+py[robot[i].op.top()];
 
-            int next_x = robot[i].x+px[robot[i].next] , next_y  =robot[i].y+py[robot[i].next];
+            if(control.check_move(next_x,next_y)){  // 移动阻塞
+                printf("move %d %d\n", i , robot[i].op.top());
+                robot[i].op.pop();
 
-            if(control.check_move(next_x,next_y)){  // 运行阻塞
-                printf("move %d %d\n", i , robot[i].next);
-                mp[robot[i].x][robot[i].y] = '.';
-                mp[next_x][next_y] = 'A';
+                //修改属性
+                //mp[robot[i].x][robot[i].y] = '.';
+                //mp[next_x][next_y] = 'A';
                 if(next_x == goods[robot[i].target_get].x && next_y == goods[robot[i].target_get].y){
                     printf("get %d\n", i );
-                    mp[next_x][next_y] = '.';
-                    robot[i].vis.clear();
+                    robot[i].goods = true;
+                    //robot[i].vis.clear();
                 }
                 // TODO 4 * 4判定
                 if(next_x - berth[robot[i].target_pull].x >= 0 && next_y - berth[robot[i].target_pull].y >=0 &&
                    next_x - berth[robot[i].target_pull].x <= 3 && next_y - berth[robot[i].target_pull].y <=3 ){ 
                     printf("pull %d\n", i );
-                    robot[i].vis.clear();
+                    robot[i].chosed = false;
+                    while(!robot[i].op.empty())
+                        robot[i].op.pop();
+                    //robot[i].vis.clear();
                 }
             }   
         }

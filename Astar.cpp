@@ -42,6 +42,7 @@
 //     //并将回溯经过的点标记为'O'
 //     for (auto rs = findway(Point{ begin.x,begin.y }, Point{ end.x,end.y }); rs != nullptr; rs = rs->father) {
 //         mapBuffer[rs->x][rs->y] = 'O';
+//         std::cout<<rs->x<<rs->y<<std::endl;
 //     }
 //     //打印走过路后的地图
 //     printMap();

@@ -8,6 +8,11 @@
 #include "Astar.h"
 using namespace std;
 
+std::map<pair<int,int> , int> dir = {
+    {{0,1},0}, {{0,-1},1},
+    {{-1,0},2}, {{1,0},3}
+};
+
 // int goodsbfs(int rest,  Goods *good)
 // {
 //     if (rest == 0) // 无可用机器人则返回-1
@@ -141,35 +146,53 @@ using namespace std;
 //         printf("pull %d %d\n", rand() % 4); // 修改
 //     }
 // }
+void recover_map(){
+    for(int i = 0 ; i < map_size ; i++ ){
+        for(int j = 0 ; j < map_size ; j++){
+            if(mp[i][j] == '*' || mp[i][j] == '#') closeAndBarrierList[i][j] = true;
+            else closeAndBarrierList[i][j] = false;
+        }
+    }
+}
 
 void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int zhen){
-    int gx,gy,mind = 400000;
+    int mind = 400000;
     for(int i = 0 ; i < goods.size() ; i++){
-        if(robot.goods) break; //带货 不找
         if(goods[i].chosed || goods[i].zhen_id + 1000 < zhen) continue;
         int temp = abs(robot.x - goods[i].x) + abs(robot.y - goods[i].y);
         if(temp < mind){
             mind = temp;
+            robot.chosed = true;
             robot.target_get = i;
         }
-    }
-    if(mind != 400000){
-        mind = 400000;
-        goods[robot.target_get].chosed = true;
-        for(int j = 0 ; j < berth_num ; j++){
-            int temp = abs(berths[j].x - goods[robot.target_get].x) + abs(berths[j].y - goods[robot.target_get].y);
-            if(temp < mind){
-                mind = temp;
-                robot.target_pull = j;
-            }
-        }
     } 
-
-    if(!robot.goods){
-        robot.next = greed_next(robot.vis,{robot.x,robot.y} , {goods[robot.target_get].x , goods[robot.target_get].y});
+    if(mind == 400000) return;
+    //cout<<robot.robot_id<<" 选中 "<<robot.target_get<<endl;
+    mind = 400000;
+    goods[robot.target_get].chosed = true;
+    for(int j = 0 ; j < berth_num ; j++){
+        int temp = abs(berths[j].x - goods[robot.target_get].x) + abs(berths[j].y - goods[robot.target_get].y);
+        if(temp < mind){
+            mind = temp;
+            robot.target_pull = j;
+        }
     }
-    else{
-        robot.next = greed_next(robot.vis,{robot.x,robot.y} , {berths[robot.target_pull].x , berths[robot.target_pull].y});
+    //robot.next = greed_next(robot.vis,{robot.x,robot.y} , {berths[robot.target_pull].x , berths[robot.target_pull].y});
+    Astar as1;
+    for (auto rs = as1.findway(Point{goods[robot.target_get].x,goods[robot.target_get].y}, Point{berths[robot.target_pull].x , berths[robot.target_pull].y}); rs != nullptr; rs = rs->father) {
+        if(rs->father == nullptr) break;
+        int tempx = rs->x - rs->father->x , tempy = rs->y - rs->father->y;
+        robot.op.push(dir[{tempx,tempy}]);
+        //cout<<"berth"<<rs->x<<" "<<rs->y<<endl;
+    }
+    recover_map();
+    //robot.next = greed_next(robot.vis,{robot.x,robot.y} , {goods[robot.target_get].x , goods[robot.target_get].y});
+    Astar as2;
+    for (auto rs = as2.findway(Point{robot.x,robot.y}, Point{goods[robot.target_get].x , goods[robot.target_get].y}); rs != nullptr; rs = rs->father) {
+        if(rs->father == nullptr) break;
+        int tempx = rs->x - rs->father->x , tempy = rs->y - rs->father->y;
+        robot.op.push(dir[{tempx,tempy}]);
+        //cout<<"good"<<rs->x<<" "<<rs->y<<endl;
     }
 }
 
