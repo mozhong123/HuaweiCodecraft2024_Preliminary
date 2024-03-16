@@ -3,9 +3,12 @@
 #include "config.hpp"
 #include "berth.hpp"
 #include "func.hpp"
-int collect_time[5] = {0};         // 存储五艘船装完完当前码头货物的时间
-vector<pair<int, int>> berth_list; // 存储可去码头
-int force_leave_time = 100;        // 超过这个帧数没有动作就去卖货
+#include <stdio.h>
+int collect_time[5] = {0};                 // 存储五艘船装完完当前码头货物的时间
+vector<pair<int, int>> berth_list;         // 存储可去码头
+int force_leave_time = 100;                // 超过这个帧数没有动作就去卖货
+FILE *logFile = fopen("logfile.txt", "w"); // 调试用的
+// fprintf(logFile, "%d船舶有%d货物\n", target,berth[target].goods_num);
 class Boat
 {
 public:
@@ -57,28 +60,44 @@ int Boat::judge_full(int zhen) // 仅在船刚到码头时与码头上货物收�
     }
     else // 装不满
     {
-        if(berth[target].goods_num == 0)
+        if (berth[target].goods_num == 0)
         {
-            if(no_action_time < force_leave_time)  // 没到强制离开时间
+            if (this->no_action_time < force_leave_time) // 没到强制离开时间
             {
-                no_action_time += 1;
+                this->no_action_time += 1;
                 return zhen + 1;
             }
             else // 到了就强制离开去卖货
             {
-                boat[this->id].sold();
-                return 0;
+                if (this->exist_goods_num != 0) // 收集到了货物
+                {
+                    this->sold();
+                    return 0;
+                }
+                else // 没收集到货物
+                {
+                    this->no_action_time += 1;
+                    return zhen + 1;
+                }
             }
         }
         else
         {
-            int time = berth[target].goods_num / berth[target].loading_speed;
-            this->exist_goods_num += time * berth[target].loading_speed;
-            berth[target].goods_num -= time * berth[target].loading_speed;
+            int time = 1;
+            if (berth[target].goods_num < berth[target].loading_speed) // 货物不够一帧装的
+            {
+                this->exist_goods_num += berth[target].goods_num;
+                berth[target].goods_num = 0;
+            }
+            else
+            {
+                time = berth[target].goods_num / berth[target].loading_speed;
+                this->exist_goods_num += time * berth[target].loading_speed;
+                berth[target].goods_num -= time * berth[target].loading_speed;
+            }
             this->no_action_time = 0;
             return zhen + time;
         }
-        
     }
 }
 
@@ -98,14 +117,15 @@ void Boat::action(int zhen)
                         berth_list.push_back({i, berth[i].transport_time});
                     }
                 }
-                if (berth_list.size() != 0) // 有可去的泊位
-                {
-                    sort(berth_list.begin(), berth_list.end(), berth_compare); // 泊位的权重，目前根据已有货物数量和泊位与虚拟点的距离来判断(待改进：货物总价值，待送货物总价值，泊位装载速度)
-                    int berth_target = berth_list[0].first;
-                    this->to_berth(berth_target, zhen); // 送去泊点
-                    boat_flag = 1;
-                }
             }
+            if (berth_list.size() != 0) // 有可去的泊位
+            {
+                sort(berth_list.begin(), berth_list.end(), berth_compare); // 泊位的权重，目前根据已有货物数量和泊位与虚拟点的距离来判断(待改进：货物总价值，待送货物总价值，泊位装载速度)
+                int berth_target = berth_list[0].first;
+                this->to_berth(berth_target, zhen); // 送去泊点
+                boat_flag = 1;
+            }
+            berth_list.clear();
             if (!boat_flag) // 没有有货且空余的泊位
             {
                 vector<pair<int, int>> berth_list1; // 存储可去码头
@@ -113,7 +133,7 @@ void Boat::action(int zhen)
                 {
                     if (robot[i].target_pull != -1 && robot[i].goods == 1 && berth[robot[i].target_pull].status == 0)
                     {
-                        berth_list1.push_back({i,berth[robot[i].target_pull].transport_time});
+                        berth_list1.push_back({i, berth[robot[i].target_pull].transport_time});
                     }
                 }
                 if (berth_list1.size() != 0) // 有可去的泊位
@@ -122,7 +142,7 @@ void Boat::action(int zhen)
                     int robot_target = berth_list1[0].first;
                     this->to_berth(robot[robot_target].target_pull, zhen); // 送去泊点
                 }
-                
+                berth_list1.clear();
             }
         }
         else // 在泊位，要判断是否装满
@@ -131,7 +151,6 @@ void Boat::action(int zhen)
             {
                 if (this->zhen_id == zhen) // 船刚到泊位
                 {
-                    berth[this->target].status = 1;
                     int lodging_time = this->judge_full(zhen); // 判断港口货物能否装满
                     if (lodging_time != 0)
                     {
@@ -142,6 +161,7 @@ void Boat::action(int zhen)
                 {
                     if (collect_time[this->id] == zhen) // 当前码头的货物都装满了
                     {
+
                         int lodging_time = boat[this->id].judge_full(zhen); // 判断港口货物能否装满
                         if (lodging_time != 0)
                         {
@@ -152,7 +172,7 @@ void Boat::action(int zhen)
             }
             else // 装满了
             {
-                boat[this->id].sold();
+                this->sold();
             }
         }
     }

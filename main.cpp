@@ -52,6 +52,7 @@ int Input(int zhen)  // 每帧交互
     for(int i = 0; i < 5; i ++)
     {
         boat[i].id = i;
+        boat[i].capacity = boat_capacity;
         scanf("%d%d\n", &boat[i].status, &boat[i].target);
     }
     char okk[100];
@@ -96,6 +97,7 @@ int main()
                 // TODO 4 * 4判定
                 if(next_x - berth[robot[i].target_pull].x >= 0 && next_y - berth[robot[i].target_pull].y >=0 &&
                    next_x - berth[robot[i].target_pull].x <= 3 && next_y - berth[robot[i].target_pull].y <=3 ){ 
+                    berth[robot[i].target_pull].goods_num += 1;
                     printf("pull %d\n", i );
                     robot[i].chosed = false;
                     while(!robot[i].op.empty())

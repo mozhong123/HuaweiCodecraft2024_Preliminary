@@ -12,8 +12,8 @@ public:
         this->loading_speed = loading_speed;
     }
     int x, y;
-    int status; // 有没有船，0无1有
-    int goods_num; // 现有货物数量
+    int status = 0; // 有没有船，0无1有
+    int goods_num = 0; // 现有货物数量
     int transport_time;
     int loading_speed;
 };
