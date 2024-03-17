@@ -160,20 +160,24 @@ void recover_map(){ // 初始化 闭集 和 障碍
 }
 
 void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int zhen){
-    int mind = 400000;
+    int mind = -500;
     for(int i = 0 ; i < goods.size() ; i++){
+        //货物已经被选中或者货物消亡则不遍历
         if(goods[i].chosed || goods[i].zhen_id + 1000 < zhen) continue;
-        int temp = abs(robot.x - goods[i].x) + abs(robot.y - goods[i].y) - goods[i].value;
-        if(temp < mind){
+        //货物选择标准（可以替换）
+        int temp = 0.6*goods[i].value - 0.4*(abs(robot.x - goods[i].x) + abs(robot.y - goods[i].y));
+        if(temp > mind){
             mind = temp;
             robot.chosed = true;
             robot.target_get = i;
         }
     } 
-    if(mind == 400000) return;
+    if(mind == -500) return;
     //cout<<robot.robot_id<<" 选中 "<<robot.target_get<<endl;
-    mind = 400000;
+    mind = 4000;
+    //将货物设置为被选中
     goods[robot.target_get].chosed = true;
+    //为货物挑选最近的港口
     for(int j = 0 ; j < berth_num ; j++){
         int temp = abs(berths[j].x - goods[robot.target_get].x) + abs(berths[j].y - goods[robot.target_get].y);
         if(temp < mind){ 
@@ -182,9 +186,16 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
         }
     }
     //robot.next = greed_next(robot.vis,{robot.x,robot.y} , {berths[robot.target_pull].x , berths[robot.target_pull].y});
-    Astar as1;
+    Astar as1;  
+    recover_map();
     closeAndBarrierList[berths[robot.target_pull].x ][ berths[robot.target_pull].y] = false;
-    for (auto rs = as1.findway(Point{goods[robot.target_get].x,goods[robot.target_get].y}, Point{berths[robot.target_pull].x , berths[robot.target_pull].y}); rs != nullptr; rs = rs->father) {
+    auto rs = as1.findway(Point{goods[robot.target_get].x,goods[robot.target_get].y}, Point{berths[robot.target_pull].x , berths[robot.target_pull].y});
+    if(rs == nullptr)
+    {
+        robot.chosed = 0;
+        return ;
+    }
+    for (; rs != nullptr; rs = rs->father) {
         if(rs->father == nullptr) break;
         int tempx = rs->x - rs->father->x , tempy = rs->y - rs->father->y;
         robot.op.push(dir[{tempx,tempy}]);
@@ -194,7 +205,15 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
     //robot.next = greed_next(robot.vis,{robot.x,robot.y} , {goods[robot.target_get].x , goods[robot.target_get].y});
     Astar as2;
     closeAndBarrierList[goods[robot.target_get].x][goods[robot.target_get].y] = false;
-    for (auto rs = as2.findway(Point{robot.x,robot.y}, Point{goods[robot.target_get].x , goods[robot.target_get].y}); rs != nullptr; rs = rs->father) {
+    rs = as2.findway(Point{robot.x,robot.y}, Point{goods[robot.target_get].x , goods[robot.target_get].y});
+    if(rs == nullptr)
+    {
+        robot.chosed = 0;
+        while(!robot.op.empty())
+            robot.op.pop();
+        return;
+    }
+    for (; rs != nullptr; rs = rs->father) {
         if(rs->father == nullptr) break;
         int tempx = rs->x - rs->father->x , tempy = rs->y - rs->father->y;
         robot.op.push(dir[{tempx,tempy}]);

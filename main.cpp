@@ -80,10 +80,19 @@ int main()
         // control 检查
         control.ismove.clear();
         for(int i = 0; i < robot_num; i ++){// 遍历机器人
+            if(!robot[i].status)continue;
+
             if(!robot[i].chosed)
                 distributor(robot[i],goods,berth,zhen); //分配
 
-            if(robot[i].op.empty()) continue;
+            if(robot[i].op.empty())
+            {
+                if(robot[i].chosed)
+                    robot[i].chosed = 0;
+                if(robot[i].goods)
+                    printf("pull %d\n",i);
+                continue;
+            }
 
             int next_x = robot[i].x+px[robot[i].op.top()] , next_y  =robot[i].y+py[robot[i].op.top()];
 
@@ -94,24 +103,24 @@ int main()
                 //修改属性
                 //mp[robot[i].x][robot[i].y] = '.';
                 //mp[next_x][next_y] = 'A';
-                if(next_x == goods[robot[i].target_get].x && next_y == goods[robot[i].target_get].y){
+                if(next_x == goods[robot[i].target_get].x && next_y == goods[robot[i].target_get].y&&!robot[i].goods){
                     printf("get %d\n", i );
                     robot[i].goods = true;
                     //robot[i].vis.clear();
                 }
                 // TODO 4 * 4判定
                 if(next_x - berth[robot[i].target_pull].x >= 0 && next_y - berth[robot[i].target_pull].y >=0 &&
-                   next_x - berth[robot[i].target_pull].x <= 3 && next_y - berth[robot[i].target_pull].y <=3 ){ 
+                   next_x - berth[robot[i].target_pull].x <= 3 && next_y - berth[robot[i].target_pull].y <=3&&robot[i].goods){ 
                     berth[robot[i].target_pull].goods_num += 1;
                     printf("pull %d\n", i );
                     robot[i].chosed = false;
+                    robot[i].goods = false;
                     while(!robot[i].op.empty())
                         robot[i].op.pop();
                     //robot[i].vis.clear();
                 }
             }   
         }
-
         for(int i = 0; i < boat_num; i++)
         {
             boat[i].action(zhen);
