@@ -2,6 +2,7 @@
 #define __CONTROL__
 // 检查每一帧机器人移动
 #include"config.hpp"
+#include"robot.hpp"
 #include<map>
 using namespace std;
 

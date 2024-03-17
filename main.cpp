@@ -28,7 +28,12 @@ void Init()  // 初始化地图与泊位
     scanf("%d", &boat_capacity);
     char okk[100];
     scanf("%s", okk);
-    recover_map();
+    for(int i = 0 ; i < map_size ; i++ ){
+        for(int j = 0 ; j < map_size ; j++){
+            if(mp[i][j] == '*' || mp[i][j] == '#') closeAndBarrierList[i][j] = true;
+            else closeAndBarrierList[i][j] = false;
+        }
+    }
     printf("OK\n");
     fflush(stdout);
 }
