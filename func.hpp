@@ -163,7 +163,7 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
     int mind = 400000;
     for(int i = 0 ; i < goods.size() ; i++){
         if(goods[i].chosed || goods[i].zhen_id + 1000 < zhen) continue;
-        int temp = abs(robot.x - goods[i].x) + abs(robot.y - goods[i].y);
+        int temp = abs(robot.x - goods[i].x) + abs(robot.y - goods[i].y) - goods[i].value;
         if(temp < mind){
             mind = temp;
             robot.chosed = true;
