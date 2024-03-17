@@ -225,4 +225,7 @@ bool berth_compare(pair<int, int>& p1, pair<int, int>& p2) {
     return p1.second < p2.second;
 }
 
+bool berth_opposite_compare(pair<int, int>& p1, pair<int, int>& p2) {
+    return p1.second > p2.second;
+}
 #endif

@@ -142,11 +142,39 @@ void Boat::action(int zhen)
                     int robot_target = berth_list1[0].first;
                     this->to_berth(robot[robot_target].target_pull, zhen); // 送去泊点
                 }
+                else
+                {
+                    if (zhen >= 13000)
+                    {
+                        for (int i = 0; i < berth_num; i++) // 遍历所有泊位
+                        {
+                            if (berth[i].goods_num != 0) // 泊位上有货
+                            {
+                                berth_list.push_back({i, berth[i].goods_num});
+                            }
+                        }
+                        if (berth_list.size() != 0) // 有可去的泊位
+                        {
+                            sort(berth_list.begin(), berth_list.end(), berth_opposite_compare); // 泊位的权重，目前根据已有货物数量和泊位与虚拟点的距离来判断(待改进：货物总价值，待送货物总价值，泊位装载速度)
+                            int robot_target = berth_list[0].first;
+                            this->to_berth(robot[robot_target].target_pull, zhen); // 送去泊点
+                        }
+                        // else
+                        // {
+                            
+                        // }
+                    }
+                }
                 berth_list1.clear();
+                berth_list.clear();
             }
         }
         else // 在泊位，要判断是否装满
         {
+            if (zhen == 15000 - berth[this->target].transport_time - 1)
+            {
+                this->sold();
+            }
             if (this->leave_time < zhen) // 没装满
             {
                 if (this->zhen_id == zhen) // 船刚到泊位
