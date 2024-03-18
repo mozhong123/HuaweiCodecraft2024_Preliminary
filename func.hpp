@@ -13,12 +13,29 @@ std::map<pair<int,int> , int> dir = {
     {{-1,0},2}, {{1,0},3}
 };
 
-// int goodsbfs(int rest,  Goods *good)
+int robot_find(int x, int y)
+{
+    for (int i = 0; i < robot_num; i++)
+    {
+        if (robot[i].x == x && robot[i].y == y)
+            return i;
+    }
+    return -1;
+}
+
+int berth_find(int x, int y)
+{
+    for (int i = 0; i < berth_num; i++)
+        if (berth[i].x == x && berth[i].y == y)
+            return i;
+    return -1;
+}
+// int goodsbfs(int rest,  int id)
 // {
 //     if (rest == 0) // 无可用机器人则返回-1
 //         return -1;
 //     queue<pair<int, int>> q;
-//     q.push(make_pair(good->x, good->y));
+//     q.push(make_pair(goods[id].x, goods[id].y));
 //     bool r = 0, p = 0;
 //     bool vis[201][201];
 //     memset(vis, 0, sizeof(vis));
@@ -47,7 +64,7 @@ std::map<pair<int,int> , int> dir = {
 //                         {
 //                             r = 1;
 //                             // 此处id应该为物品的索引？或者物品指针
-//                             tmp->target_get = good;
+//                             tmp->target_get = id;
 //                             tmp->chosed = 1;
 //                             start = make_pair(xx, yy); // 记录机器人在数组中的位置
 //                             // 确定之后该位置就可以视为非障碍物
@@ -135,11 +152,11 @@ std::map<pair<int,int> , int> dir = {
 //     // 找到返回0
 //     return 1;
 // }
-// void check_get(Robot& robot,Goods& good){
-//     if(good.x == robot.x && good.y == robot.y){
-//         printf("get %d %d\n", rand() % 4); // 修改
-//     }
-// }
+void check_get(Robot& robot,Goods& good){
+    if(good.x == robot.x && good.y == robot.y){
+        printf("get %d %d\n", rand() % 4); // 修改
+    }
+}
 
 // void check_pull(Robot& robot,Berth& berth){
 //     if(berth.x == robot.x && berth.y == robot.y){
