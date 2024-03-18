@@ -5,10 +5,11 @@
 #include "func.hpp"
 #include <stdio.h>
 int collect_time[5] = {0};                 // 存储五艘船装完完当前码头货物的时间
-vector<pair<int, int>> berth_list;         // 存储可去码头
-int force_leave_time = 300;                // 超过这个帧数没有动作就去卖货
+vector<pair<int, float>> berth_list;       // 存储可去码头
+int force_leave_time = 100;                // 超过这个帧数没有动作就去卖货
 FILE *logFile = fopen("logfile.txt", "w"); // 调试用的
 // fprintf(logFile, "%d船舶有%d货物\n", target,berth[target].goods_num);
+vector<int> berth_goods[berth_num]; // 存储每个码头到的货物价值
 class Boat
 {
 public:
@@ -55,6 +56,11 @@ int Boat::judge_full(int zhen) // 仅在船刚到码头时与码头上货物收�
         int time = require_good / berth[target].loading_speed;
         this->leave_time = zhen + time;
         berth[target].goods_num -= time * berth[target].loading_speed;
+        for (int i = 0; i < time * berth[target].loading_speed; i++)
+        {
+            berth[target].goods_value -= berth_goods[target][i];
+        }
+        berth_goods[target].erase(berth_goods[target].begin(), berth_goods[target].begin() + time * berth[target].loading_speed);
         this->no_action_time = 0;
         return 0;
     }
@@ -88,12 +94,23 @@ int Boat::judge_full(int zhen) // 仅在船刚到码头时与码头上货物收�
             {
                 this->exist_goods_num += berth[target].goods_num;
                 berth[target].goods_num = 0;
+                for (int i = 0; i < berth[target].goods_num; i++)
+                {
+                    berth[target].goods_value -= berth_goods[target][i];
+                }
+                berth_goods[target].erase(berth_goods[target].begin(), berth_goods[target].begin() + berth[target].goods_num);
+        
             }
             else
             {
                 time = berth[target].goods_num / berth[target].loading_speed;
                 this->exist_goods_num += time * berth[target].loading_speed;
                 berth[target].goods_num -= time * berth[target].loading_speed;
+                for (int i = 0; i < time * berth[target].loading_speed; i++)
+                {
+                    berth[target].goods_value -= berth_goods[target][i];
+                }
+                berth_goods[target].erase(berth_goods[target].begin(), berth_goods[target].begin() + time * berth[target].loading_speed);
             }
             this->no_action_time = 0;
             return zhen + time;
@@ -114,13 +131,13 @@ void Boat::action(int zhen)
                 {
                     if (berth[i].goods_num != 0) // 泊位上有货
                     {
-                        berth_list.push_back({i, berth[i].transport_time});
+                        berth_list.push_back({i, float(berth[i].goods_value)});
                     }
                 }
             }
             if (berth_list.size() != 0) // 有可去的泊位
             {
-                sort(berth_list.begin(), berth_list.end(), berth_compare); // 泊位的权重，目前根据已有货物数量和泊位与虚拟点的距离来判断(待改进：货物总价值，待送货物总价值，泊位装载速度)
+                sort(berth_list.begin(), berth_list.end(), berth_opposite_compare); // 泊位的权重，目前根据已有货物数量和泊位与虚拟点的距离来判断(待改进：货物总价值，待送货物总价值，泊位装载速度)
                 int berth_target = berth_list[0].first;
                 this->to_berth(berth_target, zhen); // 送去泊点
                 boat_flag = 1;
@@ -128,14 +145,36 @@ void Boat::action(int zhen)
             berth_list.clear();
             if (!boat_flag) // 没有有货且空余的泊位
             {
-                vector<pair<int, int>> berth_list1; // 存储可去码头
-                for (int i = 0; i < robot_num; i++) // 看看机器人是否有要去的码头
+                vector<pair<int, float>> berth_list1; // 存储可去码头
+                int robot2berth_num[berth_num] = {0}; // 去各码头的机器人数量
+                for (int i = 0; i < robot_num; i++)   // 看看机器人是否有要去的码头
                 {
                     if (robot[i].target_pull != -1 && robot[i].goods == 1 && berth[robot[i].target_pull].status == 0)
                     {
-                        berth_list1.push_back({i, berth[robot[i].target_pull].transport_time});
+                        if(zhen < 500)
+                        {
+                            berth_list1.push_back({i, float(berth[robot[i].target_pull].transport_time)}); // 权值，由去码头的机器人数量与航船时间构成
+                        }
+                        else
+                        {
+                            if(berth[robot[i].target_pull].goods_value != 0)
+                            {
+                                berth_list1.push_back({i, float(berth[robot[i].target_pull].goods_value)}); 
+                            }
+                        }
+                        
+                        // robot2berth_num[robot[i].target_pull]++;
                     }
                 }
+                // for (int i = 0; i < berth_num; i++) // 看看机器人是否有要去的码头
+                // {
+                //     if (robot2berth_num[i] != 0)
+                //     {
+                //         float weight = 0.8 * float(2.0 / robot2berth_num[i]) + 0.2 * float(berth[robot[i].target_pull].transport_time / 1000.0);
+                //         berth_list1.push_back({i, weight}); // 权值，由去码头的机器人数量与航船时间构成
+                //     }
+                //     robot2berth_num[i] = 0;
+                // }
                 if (berth_list1.size() != 0) // 有可去的泊位
                 {
                     sort(berth_list1.begin(), berth_list1.end(), berth_compare); // 泊位的权重，目前根据已有货物数量和泊位与虚拟点的距离来判断(待改进：货物总价值，待送货物总价值，泊位装载速度)
@@ -150,7 +189,7 @@ void Boat::action(int zhen)
                         {
                             if (berth[i].goods_num != 0) // 泊位上有货
                             {
-                                berth_list.push_back({i, berth[i].goods_num});
+                                berth_list.push_back({i, float(berth[i].goods_value)});
                             }
                         }
                         if (berth_list.size() != 0) // 有可去的泊位
@@ -161,7 +200,7 @@ void Boat::action(int zhen)
                         }
                         // else
                         // {
-                            
+
                         // }
                     }
                 }

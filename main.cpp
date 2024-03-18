@@ -132,6 +132,8 @@ RE:
                 if(next_x - berth[robot[i].target_pull].x >= 0 && next_y - berth[robot[i].target_pull].y >=0 &&
                    next_x - berth[robot[i].target_pull].x <= 3 && next_y - berth[robot[i].target_pull].y <=3&&robot[i].goods){ 
                     berth[robot[i].target_pull].goods_num += 1;
+                    berth_goods[robot[i].target_pull].push_back(goods[robot[i].target_get].value);
+                    berth[robot[i].target_pull].goods_value += goods[robot[i].target_get].value;
                     printf("pull %d\n", i );
                     robot[i].chosed = false;
                     robot[i].goods = false;
