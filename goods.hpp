@@ -28,46 +28,12 @@ public:
     int chosed = false; // 0表示被选择，1表示未被选择。
     int target_pull;
     stack<int> op;
+    bool find_pos();
 };
 vector<Goods> goods; // 货物
 // 每个物品初始化的时候记录最近的泊点的路径
 Goods::Goods(int xx, int yy, int _value, int _zhen_id) : x(xx), y(yy), value(_value), zhen_id(_zhen_id)
 {
-    queue<pair<int, int>> q;
-    map<pair<int, int>, pair<int, int>> path;
-    q.push({xx, yy});
-    path[{xx, yy}] = {-1, 1};
-    pair<int,int> find = {-1,-1};
-    while (!q.empty()&&find.first == -1)
-    {
-        pair<int, int> cur = q.front();
-        q.pop();
-        for (int i = 0; i < 4; i++)
-        {
-            int nx = cur.first + px[i], ny = cur.second + py[i];
-            if (nx >= 0 && ny >= 0 && nx < 200 && ny < 200 &&
-                mp[nx][ny] != '*' && mp[nx][ny] != '#'&&path.count({nx,ny}) == 0)
-            {
-                path[{nx,ny}] = {cur.first,cur.second};
-                if(mp[nx][ny] == 'B')
-                {
-                    find = {nx,ny};
-                    break;
-                }
-                q.push({nx,ny});
-            }
-        }
-    }
-    target_pull = berth_find(find.first,find.second);
-    if(find.first != -1)
-    {
-        //找到则回溯路径
-        while(path[find].first != -1)
-        {
-            op.push(dir[{find.first - path[find].first ,find.second - path[find].second}]);
-            find = path[find];
-        }
-    }
 }
 Goods::~Goods()
 {
@@ -194,5 +160,44 @@ Goods::~Goods()
 //     // 找到返回0
 //     return 1;
 // }
-
+bool Goods::find_pos()
+{
+    queue<pair<int, int>> q;
+    map<pair<int, int>, pair<int, int>> path;
+    q.push({x, y});
+    path[{x, y}] = {-1, 1};
+    pair<int,int> find = {-1,-1};
+    while (!q.empty()&&find.first == -1)
+    {
+        pair<int, int> cur = q.front();
+        q.pop();
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = cur.first + px[i], ny = cur.second + py[i];
+            if (nx >= 0 && ny >= 0 && nx < 200 && ny < 200 &&
+                mp[nx][ny] != '*' && mp[nx][ny] != '#'&&path.count({nx,ny}) == 0)
+            {
+                path[{nx,ny}] = {cur.first,cur.second};
+                if(mp[nx][ny] == 'B')
+                {
+                    find = {nx,ny};
+                    break;
+                }
+                q.push({nx,ny});
+            }
+        }
+    }
+    target_pull = berth_find(find.first,find.second);
+    if(find.first != -1)
+    {
+        //找到则回溯路径
+        while(path[find].first != -1)
+        {
+            op.push(dir[{find.first - path[find].first ,find.second - path[find].second}]);
+            find = path[find];
+        }
+        return 1;
+    }
+    return 0;
+}
 #endif
