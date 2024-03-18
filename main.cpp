@@ -85,6 +85,7 @@ int main()
             if(!robot[i].chosed)
                 distributor(robot[i],goods,berth,zhen); //分配
 
+RE:
             if(robot[i].op.empty())
             {
                 if(robot[i].chosed)
@@ -97,6 +98,15 @@ int main()
             int next_x = robot[i].x+px[robot[i].op.top()] , next_y  =robot[i].y+py[robot[i].op.top()];
 
             if(control.check_move(next_x,next_y)){  // 移动阻塞
+                recover_map();
+                if(closeAndBarrierList[next_x][next_y]){ //撞墙 重分配
+                    while(!robot[i].op.empty())
+                        robot[i].op.pop();
+                    goods[robot[i].target_get].chosed = 0;
+                    redistribute(robot[i],goods,berth,zhen);
+                    goto RE;
+                } 
+
                 printf("move %d %d\n", i , robot[i].op.top());
                 robot[i].op.pop();
 

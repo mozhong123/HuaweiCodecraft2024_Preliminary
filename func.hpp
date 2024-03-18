@@ -221,6 +221,28 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
     }
 }
 
+void redistribute(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int zhen){
+    if(robot.goods){
+        recover_map();
+        Astar as1;  
+        closeAndBarrierList[berths[robot.target_pull].x ][ berths[robot.target_pull].y] = false;
+        auto rs = as1.findway(Point{robot.x,robot.y}, Point{berths[robot.target_pull].x , berths[robot.target_pull].y});
+        if(rs == nullptr)
+        {
+            robot.chosed = 0;
+            return ;
+        }
+        for (; rs != nullptr; rs = rs->father) {
+            if(rs->father == nullptr) break;
+            int tempx = rs->x - rs->father->x , tempy = rs->y - rs->father->y;
+            robot.op.push(dir[{tempx,tempy}]);
+            //cout<<"berth"<<rs->x<<" "<<rs->y<<endl;
+        }
+        return ;
+    }
+    distributor(robot,goods,berth,zhen);
+}
+
 bool berth_compare(pair<int, int>& p1, pair<int, int>& p2) {
     return p1.second < p2.second;
 }
