@@ -76,24 +76,44 @@ int main()
     for (int zhen = 1; zhen <= 15000; zhen++)
     {
         int id = Input(zhen);
-
-        // for(auto good : goods){ //遍历货物// find path 存储好
-        //    good.goodbfs();
-        // }
-        // 死锁防止
-        bool vis[10];
-        memset(vis,0,sizeof(vis));
         for (int i = 0; i < robot_num; i++)
         {
-            //如果当前机器人陷入之前机器人的遍历，则跳过
-            if(vis[i])
+            if (robot[i].chosed && robot[i].op.empty())
+                robot[i].chosed = 0, robot[i].target_get = -1;
+            if (!robot[i].chosed && robot[i].status)
+            {
+                // 如果机器人空闲则bfs遍历最好的货物
+                robot2good(robot[i], zhen);
+            }
+            if (robot[i].status == 0)
+            {
+                if (robot[i].goods)
+                    printf("pull %d\n", i);
+                else
+                {
+                    if (robot[i].target_get != -1)
+                        goods[robot[i].target_get].chosed = 0;   
+                }
+                robot[i].chosed = 0,robot[i].target_get = -1;
+                while(!robot[i].op.empty())
+                        robot[i].op.pop();
+                robot2good(robot[i],zhen);
+            }
+        }
+        // 死锁控制
+        bool vis[10];
+        memset(vis, 0, sizeof(vis));
+        for (int i = 0; i < robot_num; i++)
+        {
+            // 如果当前机器人陷入之前机器人的遍历，则跳过
+            if (vis[i])
                 continue;
-            vis[i] = 1; //标记当前机器人为遍历过
+            vis[i] = 1; // 标记当前机器人为遍历过
             if (!robot[i].status || robot[i].op.empty())
                 continue;
             int next_x = robot[i].x + px[robot[i].op.top()], next_y = robot[i].y + py[robot[i].op.top()];
             int end = robot_find(next_x, next_y);
-            while (end != -1&&!vis[end])
+            while (end != -1 && !vis[end])
             {
                 if (!robot[end].status)
                     break;
@@ -107,8 +127,8 @@ int main()
             if (end != -1)
             {
                 // 1.status = 0，先不解决
-                //2. 如果遍历了之前遍历过的，且不是环的起点则不用操作。
-                if(end != i&&vis[end])
+                // 2. 如果遍历了之前遍历过的，且不是环的起点则不用操作。
+                if (end != i && vis[end])
                     continue;
                 vis[end] = 1;
                 // 2.end == i，环，让其中任意一个移动到一个空地上
@@ -118,8 +138,7 @@ int main()
                     {
                         int x = robot[end].x + px[j],
                             y = robot[end].y + py[j];
-                        if (robot_find(x, y) == -1 && x < 200 && y < 200
-                            &&x >= 0&&y >= 0&& mp[x][y] != '*' && mp[x][y] != '#')
+                        if (robot_find(x, y) == -1 && x < 200 && y < 200 && x >= 0 && y >= 0 && mp[x][y] != '*' && mp[x][y] != '#')
                         {
                             robot[end].op.push(dir[{-px[j], -py[j]}]);
                             robot[end].op.push(dir[{px[j], py[j]}]);
@@ -136,8 +155,7 @@ int main()
                         {
                             int x = robot[end].x + px[j],
                                 y = robot[end].y + py[j];
-                            if (robot_find(x, y) == -1 && x < 200 && y < 200
-                            &&x >= 0&&y >= 0&& mp[x][y] != '*' && mp[x][y] != '#')
+                            if (robot_find(x, y) == -1 && x < 200 && y < 200 && x >= 0 && y >= 0 && mp[x][y] != '*' && mp[x][y] != '#')
                             {
                                 flag = 1;
                                 robot[end].op.push(dir[{-px[j], -py[j]}]);
@@ -148,7 +166,7 @@ int main()
                         if (!flag && !robot[end].op.empty())
                         {
                             end = robot_find(robot[end].x + px[robot[end].op.top()],
-                                                robot[end].y + py[robot[end].op.top()]);
+                                             robot[end].y + py[robot[end].op.top()]);
                             if (end == i) // 每个机器人都找不到出路
                                 break;
                         }
@@ -158,63 +176,28 @@ int main()
                 }
             }
         }
-        // control 检查
-        control.ismove.clear();
+        map<pair<int,int>,bool > track;
         for (int i = 0; i < robot_num; i++)
-        { // 遍历机器人
-            if (!robot[i].status)
-                continue;
-            if (!robot[i].chosed)
-                distributor(robot[i], goods, berth, zhen); // 分配
-
-        RE:
-            if (robot[i].op.empty())
+        {
+            if (robot[i].status && robot[i].chosed && !robot[i].op.empty()) // 正常状态
             {
-                if (robot[i].chosed)
-                    robot[i].chosed = 0;
-                if (robot[i].goods)
-                    printf("pull %d\n", i);
-                continue;
-            }
-
-            int next_x = robot[i].x + px[robot[i].op.top()], next_y = robot[i].y + py[robot[i].op.top()];
-
-            if (control.check_move(next_x, next_y))
-            { // 移动阻塞
-                recover_map();
-                if (mp[next_x][next_y] == '*' || mp[next_x][next_y] == '#')
-                { // 撞墙 重分配
-                    while (!robot[i].op.empty())
-                        robot[i].op.pop();
-                    if(!robot[i].goods)
-                        goods[robot[i].target_get].chosed = 0;
-                    redistribute(robot[i], goods, berth, zhen);
-                    goto RE;
-                }
-
-                printf("move %d %d\n", i, robot[i].op.top());
+                int nx = robot[i].x + px[robot[i].op.top()],
+                    ny = robot[i].y + py[robot[i].op.top()];
+                if(track[{nx,ny}] == false)
+                    printf("move %d %d\n", i, robot[i].op.top());
+                else continue;
+                track[{nx,ny}] = 1;
                 robot[i].op.pop();
 
-                // 修改属性
-                // mp[robot[i].x][robot[i].y] = '.';
-                // mp[next_x][next_y] = 'A';
-                if (next_x == goods[robot[i].target_get].x && next_y == goods[robot[i].target_get].y && !robot[i].goods)
+                // 不考虑阻塞碰撞等情况
+                if (mp[nx][ny] == 'B' && robot[i].goods)
                 {
-                    printf("get %d\n", i);
-                    robot[i].goods = true;
-                    // robot[i].vis.clear();
-                }
-                // TODO 4 * 4判定
-                if (next_x - berth[robot[i].target_pull].x >= 0 && next_y - berth[robot[i].target_pull].y >= 0 &&
-                    next_x - berth[robot[i].target_pull].x <= 3 && next_y - berth[robot[i].target_pull].y <= 3 && robot[i].goods)
-                {
-                    berth[robot[i].target_pull].goods_num += 1;
+                    berth[goods[robot[i].target_get].target_pull].goods_num += 1;
                     printf("pull %d\n", i);
                     robot[i].chosed = false;
-                    while (!robot[i].op.empty())
-                        robot[i].op.pop();
-                    // robot[i].vis.clear();
                 }
+                else if (nx == goods[robot[i].target_get].x && ny == goods[robot[i].target_get].y && !robot[i].goods)
+                    printf("get %d\n", i);
             }
         }
         for (int i = 0; i < boat_num; i++)
@@ -224,6 +207,5 @@ int main()
         puts("OK");
         fflush(stdout);
     }
-
     return 0;
 }

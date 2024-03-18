@@ -6,7 +6,7 @@
 #include <stdio.h>
 int collect_time[5] = {0};                 // 存储五艘船装完完当前码头货物的时间
 vector<pair<int, int>> berth_list;         // 存储可去码头
-int force_leave_time = 100;                // 超过这个帧数没有动作就去卖货
+int force_leave_time = 300;                // 超过这个帧数没有动作就去卖货
 FILE *logFile = fopen("logfile.txt", "w"); // 调试用的
 // fprintf(logFile, "%d船舶有%d货物\n", target,berth[target].goods_num);
 class Boat
