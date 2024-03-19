@@ -10,7 +10,6 @@
 // #include"Astar.h"
 using namespace std;
 
-
 int money, boat_capacity, id;
 //int gds[map_size][map_size];  // 官方给的，但似乎没用
 vector <Goods> goods;  // 货物
@@ -41,6 +40,16 @@ void Init()  // 初始化地图与泊位
     // 各港口到所有点的距离获取
     for(int i = 0; i < berth_num; i++){
         bfs(i, berth[i].x, berth[i].y);
+    }
+    //为每个点分配最近的泊点
+    for(int i = 0;i < map_size;i++)
+    {
+        for(int j = 0;j < map_size;j++)
+        {
+            pos[i][j] = 0;
+            for(int k = 1;k < berth_num;k++)
+                pos[i][j] = dis[pos[i][j]][i][j] > dis[k][i][j] ? k : pos[i][j];
+        }                
     }
     printf("OK\n");
     fflush(stdout);

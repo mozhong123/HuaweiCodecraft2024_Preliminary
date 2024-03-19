@@ -27,6 +27,7 @@ public:
     void sold();                          // 卖货
     int judge_full(int zhen);             // 判断是否装满(当前码头货物能装满船则记录船离开时间并返回0；反之则返回传输完当前所有货物时的帧)
     void action(int zhen);
+    void action2(int zhen);
 };
 
 Boat boat[boat_num + 5];
@@ -93,13 +94,12 @@ int Boat::judge_full(int zhen) // 仅在船刚到码头时与码头上货物收�
             if (berth[target].goods_num < berth[target].loading_speed) // 货物不够一帧装的
             {
                 this->exist_goods_num += berth[target].goods_num;
-                berth[target].goods_num = 0;
                 for (int i = 0; i < berth[target].goods_num; i++)
                 {
                     berth[target].goods_value -= berth_goods[target][i];
                 }
                 berth_goods[target].erase(berth_goods[target].begin(), berth_goods[target].begin() + berth[target].goods_num);
-        
+                berth[target].goods_num = 0;
             }
             else
             {
@@ -246,6 +246,27 @@ void Boat::action(int zhen)
     else if (boat[this->id].status == 2) // 泊位外等待
     {
         return; // 暂时不加也无妨
+    }
+}
+
+void Boat::action2(int zhen)
+{
+    if(status == 1)//正常运行状态
+    {
+        //1.到达虚拟点,则继续遍历泊点，挑选最优的泊点(单位时间收益最高)
+        if(target == -1)
+        {
+
+            for(int i = 0;i < berth_num;i++)
+            {
+                /*
+                1. 不用等待的泊点
+                2. 需要等待的泊点，则加上等待时长（即上一艘船的装货完成时间-该船的到达时间)
+                ps:可能有多艘船选择一个泊点，如果同时选择一个泊点则先输入指令的先进入泊点，则后一个等待，可以用队列来计算等待时间
+                */
+               
+            }
+        }
     }
 }
 

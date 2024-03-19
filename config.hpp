@@ -9,6 +9,7 @@ int px[4] = {0, 0, -1, 1}, py[4] = {1, -1, 0, 0};
 //地图
 char mp[map_size+10][map_size+10];
 int dis[berth_num+1][map_size+10][map_size+10];
+int pos[map_size+10][map_size+10];
 //是否可以经过
 bool closeAndBarrierList[map_size+10][map_size+10];
 
