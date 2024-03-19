@@ -154,7 +154,8 @@ RE:
         }
         for(int i = 0; i < boat_num; i++)
         {
-            boat[i].action(zhen);
+            // boat[i].action(zhen);
+            boat[i].action2(zhen);
         }
         puts("OK");
         fflush(stdout);

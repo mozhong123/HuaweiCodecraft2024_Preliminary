@@ -16,8 +16,8 @@ struct Point {
 };
 
 struct OpenPoint : public Point {
-    int cost;                 // 从起点的耗费值
-    int pred;                 // 至终点的预测值
+    double cost;                 // 从起点的耗费值
+    double pred;                 // 至终点的预测值
     OpenPoint* father;        // 父节点
     OpenPoint() = default;
     OpenPoint(const Point & p, const Point& end, int c, OpenPoint* fatherp): Point(p), cost(c), father(fatherp) {
@@ -25,7 +25,10 @@ struct OpenPoint : public Point {
         int relativex = std::abs(end.x - p.x);
         int relativey = std::abs(end.y - p.y);
         //预测值pred
-        pred = 2*(relativex + relativey) + c;
+        double w;
+        if(relativex + relativey > 100) w = 3.0;
+        else w = 0.8;
+        pred = w*(relativex + relativey) + c;
     }
 };
 
