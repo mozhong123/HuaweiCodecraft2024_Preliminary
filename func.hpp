@@ -173,13 +173,11 @@ void redistribute(Robot &robot, vector<Goods> &goods, vector<Berth> &berths, int
     distributor(robot, goods, berth, zhen);
 }
 
-bool berth_compare(pair<int, int> &p1, pair<int, int> &p2)
-{
+bool berth_compare(pair<int, float>& p1, pair<int, float>& p2) {
     return p1.second < p2.second;
 }
 
-bool berth_opposite_compare(pair<int, int> &p1, pair<int, int> &p2)
-{
+bool berth_opposite_compare(pair<int, float>& p1, pair<int, float>& p2) {
     return p1.second > p2.second;
 }
 int good_find(int x,int y,int cnt_zhen,int zhen)
