@@ -6,7 +6,7 @@
 #include <stdio.h>
 int collect_time[5] = {0};                 // 存储五艘船装完完当前码头货物的时间
 vector<pair<int, float>> berth_list;       // 存储可去码头
-int force_leave_time = 200;                // 超过这个帧数没有动作就去卖货
+int force_leave_time = 250;                // 超过这个帧数没有动作就去卖货
 FILE *logFile = fopen("logfile.txt", "w"); // 调试用的
 // fprintf(logFile, "%d船舶有%d货物\n", target,berth[target].goods_num);
 vector<int> berth_goods[berth_num]; // 存储每个码头到的货物价值
@@ -288,7 +288,7 @@ void Boat::action2(int zhen)
                     // 等于最后一艘船需要到达时间+到达之后的等待时间+装货时间 -  当前船的到达时间
                     tot_time += max(boat[berth[i].boat_q.back()].reach_time + boat[berth[i].boat_q.back()].wait + boat[berth[i].boat_q.back()].load_time - berth[i].transport_time, 0);
                 cnt = min(cnt, (int)(14999 - zhen - tot_time) * berth[i].loading_speed);
-                if (cnt <= 0)
+                if (cnt <= (capacity/4))
                     continue; // 时间不够了就不去了,或者太少了也不去
                 for (int j = 0; j < cnt; j++)
                     v += berth_goods[i][j];
@@ -377,7 +377,9 @@ void Boat::action2(int zhen)
                         {
                             // 有船则不再在当前处装货，腾出地方给其他人用，如果容量不到一半则继续运输
                             berth[target].boat_q.erase(berth[target].boat_q.begin());
-                            if (rest >= (capacity / 3))
+                            printf("go %d\n", id);
+                            return ;
+                            if (rest >= (capacity / 2))
                             {
                                 int pre_choose = -1;
                                 double vpt = 0.0;

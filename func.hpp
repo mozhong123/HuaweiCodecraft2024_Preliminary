@@ -61,7 +61,7 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
     double mind = -500;
     for(int i = 0 ; i < goods.size() ; i++){
         //货物已经被选中或者货物消亡则不遍历
-        if(goods[i].chosed ) continue;
+        if(goods[i].chosed || dis[pos[goods[i].x][goods[i].y]][robot.x][robot.y] == 400000) continue;
         //货物选择标准（可以替换）
         double temp = 0.6*goods[i].value - 0.4*(abs(robot.x - goods[i].x) + abs(robot.y - goods[i].y));
         if(temp > mind){
@@ -72,7 +72,7 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
     } 
     if(mind == -500) return;
     //cout<<robot.robot_id<<" 选中 "<<robot.target_get<<endl;
-    mind = 4000;
+    mind = 400000;
     //将货物设置为被选中
     goods[robot.target_get].chosed = true;
     //为货物挑选最近的港口
@@ -82,6 +82,21 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
             robot.target_pull = j;
         }
     }
+    //考虑距离和收益的港口选择策略
+    // for(int j = 0;j < berth_num;j++)
+    // {
+    //     int d = dis[j][goods[robot.target_get].x][goods[robot.target_get].y];
+    //     if(d == 400000) continue;//不连通
+    //     int m = d - ((1000*goods[robot.target_get].value)/(2*berth[j].transport_time));
+    //     // int m = d;
+    //     if(m < mind)
+    //         mind = m,robot.target_pull = j;
+    // }
+    // if(mind == 400000){
+    //     robot.chosed = false;
+    //     goods[robot.target_get].chosed = false;
+    //     return;
+    // }
     recover_map();
     Astar as2;
     closeAndBarrierList[goods[robot.target_get].x][goods[robot.target_get].y] = false;
