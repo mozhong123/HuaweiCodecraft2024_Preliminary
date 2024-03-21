@@ -18,6 +18,7 @@ public:
     int goods_value = 0;
     int transport_time;
     int loading_speed;
+    int expected = 0; //期望当前港口的货物新增多少
 };
 
 std::vector<Berth> berth(berth_num);

@@ -72,13 +72,15 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
     } 
     if(mind == -500) return;
     //cout<<robot.robot_id<<" 选中 "<<robot.target_get<<endl;
-    mind = 400000;
+    mind = -400000;
     //将货物设置为被选中
     goods[robot.target_get].chosed = true;
-    //为货物挑选最近的港口
+    //为货物挑选最近的港口，且
     for(int j = 0 ; j < berth_num ; j++){
-        if(dis[j][goods[robot.target_get].x][goods[robot.target_get].y] < mind){ 
-            mind = dis[j][goods[robot.target_get].x][goods[robot.target_get].y];
+        if(dis[j][goods[robot.target_get].x][goods[robot.target_get].y] == 400000)continue;
+        double m = 0.3*berth[j].expected - 0.7*dis[j][goods[robot.target_get].x][goods[robot.target_get].y];
+        if(m > mind){ 
+            mind = m; // 0.5,0.5
             robot.target_pull = j;
         }
     }

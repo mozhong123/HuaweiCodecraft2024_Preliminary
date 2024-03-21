@@ -26,7 +26,7 @@ struct OpenPoint : public Point {
         int relativey = std::abs(end.y - p.y);
         //预测值pred
         double w;
-        if(relativex + relativey > 100) w = 3.0;
+        if(relativex + relativey > 80) w = 3.0;
         else w = 0.8;
         pred = w*(relativex + relativey) + c;
     }

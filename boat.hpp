@@ -287,9 +287,11 @@ void Boat::action2(int zhen)
                 if (berth[i].boat_q.size() != 0) // 当前港口没船，不用等待
                     // 等于最后一艘船需要到达时间+到达之后的等待时间+装货时间 -  当前船的到达时间
                     tot_time += max(boat[berth[i].boat_q.back()].reach_time + boat[berth[i].boat_q.back()].wait + boat[berth[i].boat_q.back()].load_time - berth[i].transport_time, 0);
-                cnt = min(cnt, (int)(14999 - zhen - tot_time) * berth[i].loading_speed);
-                if (cnt <= (capacity/4))
-                    continue; // 时间不够了就不去了,或者太少了也不去
+                int t = (int)(15000 - zhen - tot_time) * berth[i].loading_speed;
+                if(t < 0) //时间不允许
+                    continue;
+                cnt = min(cnt, t);
+                if(cnt <= 0)continue; //空的也不去
                 for (int j = 0; j < cnt; j++)
                     v += berth_goods[i][j];
                 // 2.装载时间
@@ -325,10 +327,10 @@ void Boat::action2(int zhen)
                 load_time = (cnt + berth[choose].loading_speed - 1) / berth[choose].loading_speed;
                 target = choose;
                 // 3.港口情况变化
+                berth[choose].expected += capacity - cnt; // 还期望当前船未装满的货物数量
                 berth[choose].boat_q.push_back(id);
-                sort(berth[choose].boat_q.begin(),berth[choose].boat_q.end(),[&](int a,int b){
-                    return boat[a].reach_time == boat[b].reach_time ? a < b : boat[a].reach_time < boat[b].reach_time;
-                });
+                sort(berth[choose].boat_q.begin(), berth[choose].boat_q.end(), [&](int a, int b)
+                     { return boat[a].reach_time == boat[b].reach_time ? a < b : boat[a].reach_time < boat[b].reach_time; });
                 printf("ship %d %d\n", id, choose);
             }
         }
@@ -345,7 +347,7 @@ void Boat::action2(int zhen)
             else
             {
                 // 装货完成
-                // 判断后续有无船，有船等待就滚，没船等待就继续
+                // 当前港口有货就继续装
                 if (rest == 0)
                 {
                     // 没容量，滚去卖货
@@ -354,96 +356,125 @@ void Boat::action2(int zhen)
                 }
                 else
                 {
-                    int cnt = min(rest, berth[target].goods_num);
-                    //如果时间不够运货那么就不选该泊点
-                    cnt = min(cnt, (14999 - zhen - berth[target].transport_time) * berth[target].loading_speed);
-                    if (cnt <= 0)
+                    // 新策略：如果当前港口仍然有货就继续装
+                    if (berth[target].goods_num > 0)
                     {
-                        berth[target].boat_q.erase(berth[target].boat_q.begin());
-                        printf("go %d\n", id);
-                    }
-                    else
-                    {
-                        if (berth[target].boat_q.size() == 1)
+                        int cnt = min(rest, berth[target].goods_num);
+                        cnt = min(cnt, (15000 - zhen - berth[target].transport_time) * berth[target].loading_speed);
+                        if (cnt <= 0)
                         {
-                            rest -= cnt;
-                            load_time = (cnt + berth[target].loading_speed - 1) / berth[target].loading_speed - 1; // 向上取整，并减去当前帧的装货时间
-                            berth[target].goods_num -= cnt;
-                            for (int i = 0; i < cnt; i++)
-                                tot_value += berth_goods[target][i];
-                            berth_goods[target].erase(berth_goods[target].begin(), berth_goods[target].begin() + cnt);
+                            berth[target].boat_q.erase(berth[target].boat_q.begin());
+                            printf("go %d\n", id);
+                            berth[target].expected -= rest;
                         }
                         else
                         {
-                            // 有船则不再在当前处装货，腾出地方给其他人用，如果容量不到一半则继续运输
-                            berth[target].boat_q.erase(berth[target].boat_q.begin());
-                            printf("go %d\n", id);
-                            return ;
-                            if (rest >= (capacity / 2))
-                            {
-                                int pre_choose = -1;
-                                double vpt = 0.0;
-                                for (int i = 0; i < berth_num; i++)
-                                {
-                                    if (i == target)
-                                        continue;
-                                    int cnt = min(rest, berth[i].goods_num); // （需要通过计算当前船最多能装多少来决定总价值）
-                                    // 然后计算总时间
-                                    double tot_time = 0.0;
-                                    // 1.运输时间
-                                    tot_time += 2 * berth[i].transport_time;
-                                    double v = 1.0;
-                                    // 3.等待时间(稍微复杂一点)
-                                    if (berth[i].boat_q.size() != 0) // 当前港口没船，不用等待
-                                        // 等于最后一艘船需要到达时间+到达之后的等待时间+装货时间 -  当前船的到达时间
-                                        tot_time += max(boat[berth[i].boat_q.back()].reach_time + boat[berth[i].boat_q.back()].wait + boat[berth[i].boat_q.back()].load_time - berth[i].transport_time, 0);
-                                    cnt = min(cnt, (int)(14999 - zhen - tot_time) * berth[i].loading_speed);
-                                    if (cnt <= 0)
-                                        continue;
-                                    for (int j = 0; j < cnt; j++)
-                                        v += berth_goods[i][j];
-                                    // 2.装载时间
-                                    // 当前容量或者多少货物（需要考虑前面的船要带走多少货物）
-                                    tot_time += (cnt + berth[i].loading_speed - 1) / berth[i].loading_speed;
-                                    double tmp = v / (double)tot_time;
-                                    if (tmp > vpt) // 能在规定时间内返程的，且单位时间价值高的
-                                    {
-                                        vpt = tmp;
-                                        pre_choose = i;
-                                    }
-                                }
-                                if (pre_choose != -1)
-                                {
-                                    int cnt = min(rest, berth[pre_choose].goods_num);
-                                    // 2.船的相关更新
-                                    reach_time = berth[pre_choose].transport_time;
-                                    wait = 0;
-                                    if (berth[pre_choose].boat_q.size() != 0)
-                                        wait = max(boat[berth[pre_choose].boat_q.back()].reach_time + boat[berth[pre_choose].boat_q.back()].wait + boat[berth[pre_choose].boat_q.back()].load_time - reach_time, 0);
-                                    cnt = min(cnt, (int)(14999 - zhen - 2 * reach_time - wait) * berth[pre_choose].loading_speed);
-                                    rest -= cnt;
-                                    berth[pre_choose].goods_num -= cnt;
-                                    for (int i = 0; i < cnt; i++)
-                                    {
-                                        tot_value += berth_goods[pre_choose][i];
-                                    }
-                                    berth_goods[pre_choose].erase(berth_goods[pre_choose].begin(), berth_goods[pre_choose].begin() + cnt);
-                                    load_time = (cnt + berth[pre_choose].loading_speed - 1) / berth[pre_choose].loading_speed;
-                                    target = pre_choose;
-                                    // 3.港口情况变化
-                                    berth[pre_choose].boat_q.push_back(id);
-                                    sort(berth[pre_choose].boat_q.begin(),berth[pre_choose].boat_q.end(),[&](int a,int b){
-                                        return boat[a].reach_time == boat[b].reach_time ? a < b : boat[a].reach_time < boat[b].reach_time;
-                                    });
-                                    printf("ship %d %d\n", id, pre_choose);
-                                }
-                            }
-                            else //剩余容量不多了
-                            {
-                                printf("go %d\n", id);
-                            }
+                            // 1. 船的变化
+                            rest -= cnt;
+                            load_time += (cnt + berth[target].loading_speed - 1) / berth[target].loading_speed - 1; // 减去当前帧的装货时间
+                            // 2. 货物减少
+                            berth[target].goods_num -= cnt;
+                            berth_goods[target].erase(berth_goods[target].begin(), berth_goods[target].begin() + cnt);
+                            // 3. 港口变化
+                            for(int i = 1;i < berth[target].boat_q.size();i++) //港口其它的船等待时间更新
+                                boat[berth[target].boat_q[i]].wait += load_time+1;
                         }
                     }
+                    else
+                    { // 没货则将expected - 船的剩余容量
+                        berth[target].boat_q.erase(berth[target].boat_q.begin());
+                        printf("go %d\n", id);
+                        berth[target].expected -= rest;
+                    }
+                    // int cnt = min(rest, berth[target].goods_num);
+                    // //如果时间不够运货那么就不选该泊点
+                    // cnt = min(cnt, (14999 - zhen - berth[target].transport_time) * berth[target].loading_speed);
+                    // if (cnt <= 0)
+                    // {
+                    //     berth[target].boat_q.erase(berth[target].boat_q.begin());
+                    //     printf("go %d\n", id);
+                    // }
+                    // else
+                    // {
+                    //     if (berth[target].boat_q.size() == 1)
+                    //     {
+                    //         rest -= cnt;
+                    //         load_time = (cnt + berth[target].loading_speed - 1) / berth[target].loading_speed - 1; // 向上取整，并减去当前帧的装货时间
+                    //         berth[target].goods_num -= cnt;
+                    //         for (int i = 0; i < cnt; i++)
+                    //             tot_value += berth_goods[target][i];
+                    //         berth_goods[target].erase(berth_goods[target].begin(), berth_goods[target].begin() + cnt);
+                    //     }
+                    //     else
+                    //     {
+                    //         berth[target].boat_q.erase(berth[target].boat_q.begin());
+                    //         printf("go %d\n", id);
+                    //         return ;
+                    // if (rest >= (capacity / 2))
+                    // {
+                    //     int pre_choose = -1;
+                    //     double vpt = 0.0;
+                    //     for (int i = 0; i < berth_num; i++)
+                    //     {
+                    //         if (i == target)
+                    //             continue;
+                    //         int cnt = min(rest, berth[i].goods_num); // （需要通过计算当前船最多能装多少来决定总价值）
+                    //         // 然后计算总时间
+                    //         double tot_time = 0.0;
+                    //         // 1.运输时间
+                    //         tot_time += 2 * berth[i].transport_time;
+                    //         double v = 1.0;
+                    //         // 3.等待时间(稍微复杂一点)
+                    //         if (berth[i].boat_q.size() != 0) // 当前港口没船，不用等待
+                    //             // 等于最后一艘船需要到达时间+到达之后的等待时间+装货时间 -  当前船的到达时间
+                    //             tot_time += max(boat[berth[i].boat_q.back()].reach_time + boat[berth[i].boat_q.back()].wait + boat[berth[i].boat_q.back()].load_time - berth[i].transport_time, 0);
+                    //         cnt = min(cnt, (int)(14999 - zhen - tot_time) * berth[i].loading_speed);
+                    //         if (cnt <= 0)
+                    //             continue;
+                    //         for (int j = 0; j < cnt; j++)
+                    //             v += berth_goods[i][j];
+                    //         // 2.装载时间
+                    //         // 当前容量或者多少货物（需要考虑前面的船要带走多少货物）
+                    //         tot_time += (cnt + berth[i].loading_speed - 1) / berth[i].loading_speed;
+                    //         double tmp = v / (double)tot_time;
+                    //         if (tmp > vpt) // 能在规定时间内返程的，且单位时间价值高的
+                    //         {
+                    //             vpt = tmp;
+                    //             pre_choose = i;
+                    //         }
+                    //     }
+                    //     if (pre_choose != -1)
+                    //     {
+                    //         int cnt = min(rest, berth[pre_choose].goods_num);
+                    //         // 2.船的相关更新
+                    //         reach_time = berth[pre_choose].transport_time;
+                    //         wait = 0;
+                    //         if (berth[pre_choose].boat_q.size() != 0)
+                    //             wait = max(boat[berth[pre_choose].boat_q.back()].reach_time + boat[berth[pre_choose].boat_q.back()].wait + boat[berth[pre_choose].boat_q.back()].load_time - reach_time, 0);
+                    //         cnt = min(cnt, (int)(14999 - zhen - 2 * reach_time - wait) * berth[pre_choose].loading_speed);
+                    //         rest -= cnt;
+                    //         berth[pre_choose].goods_num -= cnt;
+                    //         for (int i = 0; i < cnt; i++)
+                    //         {
+                    //             tot_value += berth_goods[pre_choose][i];
+                    //         }
+                    //         berth_goods[pre_choose].erase(berth_goods[pre_choose].begin(), berth_goods[pre_choose].begin() + cnt);
+                    //         load_time = (cnt + berth[pre_choose].loading_speed - 1) / berth[pre_choose].loading_speed;
+                    //         target = pre_choose;
+                    //         // 3.港口情况变化
+                    //         berth[pre_choose].boat_q.push_back(id);
+                    //         sort(berth[pre_choose].boat_q.begin(),berth[pre_choose].boat_q.end(),[&](int a,int b){
+                    //             return boat[a].reach_time == boat[b].reach_time ? a < b : boat[a].reach_time < boat[b].reach_time;
+                    //         });
+                    //         printf("ship %d %d\n", id, pre_choose);
+                    //     }
+                    // }
+                    // else //剩余容量不多了
+                    // {
+                    //     printf("go %d\n", id);
+                    // }
+                    //     }
+                    // }
                 }
             }
         }
