@@ -85,7 +85,7 @@ struct Astar{
     }
 
     //开始搜索路径
-    OpenPoint* findway(const Point& start, const Point& end) {
+    OpenPoint* findway(const Point& start, const Point& end , bool gk) {
         //deepth = 0;
         // 创建并开启一个父节点
         openlist.push(createOpenPoint(start, end, 0, nullptr));
@@ -95,7 +95,10 @@ struct Astar{
         {
             auto toOpen = openlist.top();
             // 找到终点后返还end点
-            if (*toOpen == end)
+            if (!gk && (*toOpen) == end)
+                return toOpen;
+            if (gk && (*toOpen).x - end.x >= 0 && (*toOpen).y - end.y >=0 &&
+                   (*toOpen).x - end.x <= 3 && (*toOpen).y - end.y <=3)
                 return toOpen;
             //若超出一定深度(1000深度)，则失败
             //else if (deepth >= 1000)

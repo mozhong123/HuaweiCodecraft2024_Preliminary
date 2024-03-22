@@ -102,7 +102,7 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
     recover_map();
     Astar as2;
     closeAndBarrierList[goods[robot.target_get].x][goods[robot.target_get].y] = false;
-    auto rs2 = as2.findway(Point{robot.x,robot.y}, Point{goods[robot.target_get].x , goods[robot.target_get].y});
+    auto rs2 = as2.findway(Point{robot.x,robot.y}, Point{goods[robot.target_get].x , goods[robot.target_get].y},false);
     if(rs2 == nullptr || goods[robot.target_get].zhen_id + 1000 < zhen + rs2->cost)
     {
         robot.chosed = 0;
@@ -113,7 +113,7 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
     recover_map();
     Astar as1;  
     closeAndBarrierList[berths[robot.target_pull].x ][ berths[robot.target_pull].y] = false;
-    auto rs = as1.findway(Point{goods[robot.target_get].x,goods[robot.target_get].y}, Point{berths[robot.target_pull].x , berths[robot.target_pull].y});
+    auto rs = as1.findway(Point{goods[robot.target_get].x,goods[robot.target_get].y}, Point{berths[robot.target_pull].x , berths[robot.target_pull].y},true);
     if(rs == nullptr)
     {
         robot.chosed = 0;
@@ -135,10 +135,21 @@ void distributor(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int 
 
 void redistribute(Robot& robot , vector<Goods>& goods ,vector<Berth>& berths,int zhen){
     if(robot.goods){
+        //为货物挑选最近的港口
+        double mind = 400000;
+        for(int j = 0 ; j < berth_num ; j++){
+            if(dis[j][robot.x][robot.y] == 400000)continue;
+            double m = dis[j][robot.x][robot.y];
+            if(m < mind){ 
+                mind = m; // 0.5,0.5
+                robot.target_pull = j;
+            }
+        }
+        if(mind == 400000) return;
         recover_map();
         Astar as1;  
         closeAndBarrierList[berths[robot.target_pull].x ][ berths[robot.target_pull].y] = false;
-        auto rs = as1.findway(Point{robot.x,robot.y}, Point{berths[robot.target_pull].x , berths[robot.target_pull].y});
+        auto rs = as1.findway(Point{robot.x,robot.y}, Point{berths[robot.target_pull].x , berths[robot.target_pull].y},true);
         if(rs == nullptr)
         {
             robot.chosed = 0;
